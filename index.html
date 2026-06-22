@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics_On — Financial Intelligence Studio</title>
+  
+  <!-- SECTION 10 — CDN DEPENDENCIES -->
+  <!-- Google Fonts: Syne and DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    /* SECTION 1 — CORE AESTHETIC RULES (NON-NEGOTIABLE) */
+    :root {
+      --bg-color: #000000;
+      --text-primary: #f0ece4;
+      --accent: #c8f542;
+      --text-muted: rgba(240, 236, 228, 0.45);
+      --card-bg: #0d0d0d;
+      --card-border: rgba(255, 255, 255, 0.07);
+      
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      
+      --ease-custom: cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      width: 100%;
+    }
+
+    /* Hide scrollbar everywhere */
+    html, body, div, section {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    ::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+
+    /* Custom Cursor Elements */
+    .custom-cursor-dot {
+      width: 12px;
+      height: 12px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      position: fixed;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 10000;
+      transition: width 0.1s, height 0.1s;
+    }
+
+    .custom-cursor-follower {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(200, 245, 66, 0.35);
+      border-radius: 50%;
+      position: fixed;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 9999;
+      will-change: transform;
+    }
+
+    /* SECTION 2 — PAGE LOAD ANIMATION STYLES */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 800ms var(--ease-custom);
+    }
+
+    .loader-overlay.slide-up {
+      transform: translateY(-100%);
+    }
+
+    .loader-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(24px, 4vw, 48px);
+      letter-spacing: 0.4em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .loader-counter {
+      font-family: monospace;
+      font-size: 16px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    /* SECTION 3 — NAVIGATION STYLES */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 30px 5%;
+      z-index: 100;
+      background-color: transparent;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 15px;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+
+    .nav-links .bullet {
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .menu-toggle .bullet {
+      color: var(--accent);
+    }
+
+    /* Full-screen Takeover Hamburger Menu */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 10%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--ease-custom);
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-close {
+      position: absolute;
+      top: 30px;
+      right: 5%;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 32px;
+      cursor: pointer;
+    }
+
+    .menu-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .menu-item a {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text-primary);
+      position: relative;
+      display: inline-block;
+      line-height: 1.1;
+    }
+
+    .menu-item a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease-custom);
+    }
+
+    .menu-item a:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* SECTION 4 — HERO SECTION STYLES */
+    .hero {
+      min-height: 100vh;
+      width: 100%;
+      padding: 120px 5% 60px 5%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 10vw, 140px);
+      font-weight: 800;
+      line-height: 0.92;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .hero-text-inner {
+      display: block;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-text-inner.animate {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .hero-line-1 { font-style: normal; }
+    .hero-line-2 { font-style: italic; color: var(--accent); }
+    .hero-line-3 { font-style: normal; }
+    .hero-line-4 { 
+      font-style: italic; 
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-primary);
+    }
+    .hero-line-5 { font-style: normal; font-weight: 800; }
+
+    .hero-descriptor {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 40px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-descriptor.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 50px;
+      left: 5%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .scroll-text {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+    }
+
+    .scroll-line-container {
+      width: 1px;
+      height: 60px;
+      background-color: rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scroll-line-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--accent);
+      transform-origin: top;
+      animation: scrollPulse 2s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+    }
+
+    @keyframes scrollPulse {
+      0% {
+        transform: scaleY(0);
+        transform-origin: top;
+      }
+      50% {
+        transform: scaleY(1);
+        transform-origin: top;
+      }
+      50.1% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+      }
+      100% {
+        transform: scaleY(0);
+        transform-origin: bottom;
+      }
+    }
+
+    .hero-location {
+      position: absolute;
+      bottom: 50px;
+      right: 5%;
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* SECTION 5 — INFINITE MARQUEE TICKER STYLES */
+    .marquee-ticker {
+      background-color: var(--accent);
+      color: #000000;
+      height: 52px;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid #000000;
+      border-bottom: 1px solid #000000;
+    }
+
+    .marquee-inner {
+      display: flex;
+      animation: marqueeScroll 40s linear infinite;
+    }
+
+    .marquee-ticker:hover .marquee-inner {
+      animation-play-state: paused;
+    }
+
+    .marquee-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      text-transform: uppercase;
+      padding-right: 50px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* SECTION 6 — SERVICE CARDS GRID STYLES */
+    .services-section {
+      padding: 100px 5%;
+      background-color: #000000;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Scrolling Work Banner */
+    .work-banner {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      display: flex;
+      margin-bottom: 60px;
+      opacity: 0.6;
+    }
+
+    .work-banner-inner {
+      display: flex;
+      animation: marqueeScroll 30s linear infinite;
+    }
+
+    .work-banner-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 24px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-right: 60px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Card Layout */
+    .service-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      aspect-ratio: 4/3;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .card-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+      transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      pointer-events: none;
+    }
+
+    .service-card:hover .card-bg-img {
+      transform: scale(1.08);
+    }
+
+    .card-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.2) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .card-num,
+    .service-card > div:not(.card-bg-img):not(.card-overlay) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Card Glow Gradient Sweep */
+    .service-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(105deg, transparent 40%, rgba(200, 245, 66, 0.08) 50%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0.1s linear;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .card-num {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.3em;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: auto;
+      margin-bottom: 10px;
+      line-height: 1.1;
+      transform: translateZ(30px);
+    }
+
+    .card-tagline {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-muted);
+      transform: translateZ(15px);
+    }
+
+    /* SECTION 6 & 7 — FLIP MOVEMENT STYLES */
+    .transition-card {
+      position: fixed;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      z-index: 800;
+      pointer-events: none;
+      display: none;
+      transition: all 600ms var(--ease-custom);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+    }
+
+    .transition-card.active {
+      display: block;
+    }
+
+    /* SECTION 7 — SERVICE DETAIL PAGE LAYER */
+    .detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      z-index: 900;
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 400ms var(--ease-custom);
+      padding: 100px 8% 80px 8%;
+    }
+
+    .detail-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 50px;
+      transition: opacity 0.3s;
+    }
+
+    .back-btn:hover {
+      opacity: 0.7;
+    }
+
+    .detail-header {
+      margin-bottom: 60px;
+    }
+
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 8vw, 84px);
+      font-weight: 700;
+      line-height: 1.0;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    .detail-desc {
+      font-family: var(--font-body);
+      font-size: clamp(16px, 2.5vw, 20px);
+      font-weight: 300;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+
+    /* Capabilities list structure */
+    .detail-capabilities {
+      margin-bottom: 80px;
+    }
+
+    .caps-headline {
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 30px;
+    }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .cap-item {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-top: 20px;
+    }
+
+    /* Capability drawing line */
+    .cap-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: width 1s var(--ease-custom);
+    }
+
+    .cap-item.animate::before {
+      width: 100%;
+    }
+
+    .cap-text {
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: color 0.3s, transform 0.3s var(--ease-custom);
+      cursor: pointer;
+    }
+
+    a.cap-text:hover {
+      color: var(--accent);
+      transform: translateX(8px);
+    }
+
+    .cap-text span {
+      color: var(--accent);
+    }
+
+    /* Chart Container Visuals */
+    .case-study-section {
+      background-color: #080808;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 40px;
+      margin-bottom: 80px;
+    }
+
+    .case-study-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(16px, 2vw, 20px);
+      margin-bottom: 30px;
+      color: var(--text-primary);
+      border-left: 2px solid var(--accent);
+      padding-left: 15px;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-bottom: 40px;
+    }
+
+    /* Table styles for DCF sensitivity */
+    .data-table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 30px;
+    }
+
+    .sens-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .sens-table th, .sens-table td {
+      padding: 12px 15px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sens-table th {
+      background-color: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .sens-table td.header-col {
+      color: var(--text-muted);
+      font-weight: bold;
+      text-align: left;
+    }
+
+    /* Table Conditional colors */
+    .cell-val-high {
+      color: var(--accent) !important;
+      background-color: rgba(200, 245, 66, 0.06);
+    }
+
+    .cell-val-med {
+      color: var(--text-primary) !important;
+    }
+
+    .cell-val-low {
+      color: rgba(255, 82, 82, 0.9) !important;
+      background-color: rgba(255, 82, 82, 0.06);
+    }
+
+    /* FDD risk flags */
+    .fdd-risk-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-body);
+      font-size: 14px;
+      margin-top: 30px;
+    }
+
+    .fdd-risk-table th, .fdd-risk-table td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: left;
+    }
+
+    .fdd-risk-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-high {
+      background-color: rgba(255, 82, 82, 0.15);
+      color: #ff5252;
+      border: 1px solid rgba(255, 82, 82, 0.3);
+    }
+
+    .badge-medium {
+      background-color: rgba(255, 179, 0, 0.15);
+      color: #ffb300;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+    }
+
+    .badge-low {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Mini Grid Strategy Recommendations */
+    .strat-rec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .strat-rec-card {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 25px;
+      border-radius: 4px;
+    }
+
+    .strat-rec-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .strat-rec-header span {
+      color: var(--accent);
+    }
+
+    .strat-rec-desc {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Detail Closing CTA */
+    .detail-cta {
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-heading {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 800;
+      margin-bottom: 40px;
+      color: var(--text-primary);
+    }
+
+    .cta-heading span {
+      position: relative;
+      display: inline-block;
+    }
+
+    .cta-heading span::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 5px;
+      width: 100%;
+      height: 3px;
+      background-color: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.8s var(--ease-custom);
+    }
+
+    .cta-heading.animate span::after {
+      transform: scaleX(1);
+    }
+
+    .magnetic-btn-wrap {
+      display: inline-block;
+      position: relative;
+    }
+
+    .magnetic-btn {
+      background-color: var(--accent);
+      color: #000000;
+      border: none;
+      padding: 20px 40px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* SECTION 8 — CONTACT / FOOTER STYLES */
+    .contact-section {
+      background-color: #060606;
+      padding: 100px 5% 50px 5%;
+      position: relative;
+      z-index: 5;
+    }
+
+    .contact-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 800;
+      margin-bottom: 60px;
+      color: var(--text-primary);
+    }
+
+    .social-stack {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-bottom: 80px;
+    }
+
+    .social-item {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .social-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 25px 0;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      transition: opacity 0.3s;
+    }
+
+    .social-link:hover {
+      opacity: 0.8;
+    }
+
+    .social-link span {
+      color: var(--text-muted);
+      transition: transform 0.4s var(--ease-custom);
+    }
+
+    .social-link:hover span {
+      transform: translateX(10px);
+    }
+
+    .social-line {
+      width: 100%;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .social-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease-custom);
+    }
+
+    .social-link:hover + .social-line::after {
+      transform: scaleX(1);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* SECTION 9 — SCROLL REVEALS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-stagger {
+      transition-delay: 100ms;
+    }
+
+    /* 3D Glass Refraction Plate */
+    .glass-lens {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 30px;
+      pointer-events: none;
+      z-index: 8;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      background-color: rgba(255, 255, 255, 0.01);
+      backdrop-filter: blur(8px) saturate(1.4) contrast(1.1);
+      -webkit-backdrop-filter: blur(8px) saturate(1.4) contrast(1.1);
+      box-shadow: 
+        inset 0 0 35px rgba(255, 255, 255, 0.05),
+        0 30px 60px rgba(0, 0, 0, 0.7),
+        -2px -2px 10px rgba(200, 245, 66, 0.2), /* Lime chromatic refraction */
+        2px 2px 10px rgba(0, 229, 255, 0.2);   /* Cyan chromatic refraction */
+      
+      transform-style: preserve-3d;
+      will-change: transform;
+      transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+    }
+
+    .lens-magnifier {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      border-radius: 28px;
+    }
+
+    .lens-content {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      transform-origin: 0 0;
+      left: 0;
+      top: 0;
+      padding: 120px 5% 60px 5%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #000000;
+    }
+
+    .lens-content .hero-h1 {
+      position: relative;
+    }
+
+    /* SECTION 11 — MOBILE RESPONSIVENESS */
+    @media (max-width: 768px) {
+      .custom-cursor-dot, .custom-cursor-follower, .glass-lens {
+        display: none !important;
+      }
+      
+      header {
+        padding: 20px 5%;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero-h1 {
+        font-size: clamp(48px, 12vw, 72px);
+      }
+
+      .marquee-inner {
+        animation-duration: 25s;
+      }
+
+      .grid-container {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+
+      .service-card {
+        aspect-ratio: auto;
+        height: 280px;
+      }
+
+      .caps-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .strat-rec-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SECTION 1 — CURSOR ELEMENTS -->
+  <div class="custom-cursor-dot" id="cursorDot"></div>
+  <div class="custom-cursor-follower" id="cursorFollower"></div>
+
+  <!-- SECTION 2 — PAGE LOAD ANIMATION OVERLAY -->
+  <div class="loader-overlay" id="loaderOverlay">
+    <div class="loader-title">Analytics_On</div>
+    <div class="loader-counter" id="loaderCounter">[ 0% ]</div>
+  </div>
+
+  <!-- SECTION 3 — NAVIGATION -->
+  <header>
+    <a href="#" class="logo">Analytics<span>_</span>On</a>
+    <ul class="nav-links">
+      <li><a href="#about"><span class="bullet">•</span>About</a></li>
+      <li><a href="#contact"><span class="bullet">•</span>Get in touch →</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuOpen">
+      <span class="bullet">•</span>Menu
+    </button>
+  </header>
+
+  <!-- Full-screen Takeover Hamburger Menu -->
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="menu-close" id="menuClose">×</button>
+    <ul class="menu-list">
+      <li class="menu-item" data-index="1"><a href="#" onclick="openDetailFromMenu(0)">Financial Modelling</a></li>
+      <li class="menu-item" data-index="2"><a href="#" onclick="openDetailFromMenu(1)">Financial Due Diligence</a></li>
+      <li class="menu-item" data-index="3"><a href="#" onclick="openDetailFromMenu(2)">Quantitative Finance</a></li>
+      <li class="menu-item" data-index="4"><a href="#" onclick="openDetailFromMenu(3)">Strategic Consulting</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 4 — HERO SECTION -->
+  <section class="hero" id="about">
+    <!-- 3D Refraction/Magnification Glass Lens Plate -->
+    <div class="glass-lens" id="glassLens">
+      <div class="lens-magnifier" id="lensMagnifier">
+        <div class="lens-content" id="lensContent"></div>
+      </div>
+    </div>
+
+    <h1 class="hero-h1">
+      <span class="hero-line"><span class="hero-text-inner hero-line-1">hello! I'm</span></span>
+      <span class="hero-line"><span class="hero-text-inner hero-line-2">Analytics_On</span></span>
+      <span class="hero-line"><span class="hero-text-inner hero-line-3">a financial</span></span>
+      <span class="hero-line"><span class="hero-text-inner hero-line-4">intelligence</span></span>
+      <span class="hero-line"><span class="hero-text-inner hero-line-5">studio</span></span>
+    </h1>
+    
+    <div class="hero-descriptor" id="heroDesc">
+      Financial Modelling &nbsp;·&nbsp; Due Diligence &nbsp;·&nbsp; Quant Finance &nbsp;·&nbsp; Strategic Consulting
+    </div>
+
+    <!-- Bottom corners -->
+    <div class="scroll-indicator">
+      <span class="scroll-text">scroll</span>
+      <div class="scroll-line-container">
+        <div class="scroll-line-bar"></div>
+      </div>
+    </div>
+
+    <div class="hero-location">
+      Based in India · Global Reach
+    </div>
+  </section>
+
+  <!-- SECTION 5 — INFINITE MARQUEE TICKER -->
+  <div class="marquee-ticker">
+    <div class="marquee-inner">
+      <div class="marquee-text">• Financial Modelling</div>
+      <div class="marquee-text">• Due Diligence</div>
+      <div class="marquee-text">• Quantitative Finance</div>
+      <div class="marquee-text">• Strategic Consulting</div>
+      <div class="marquee-text">• DCF Valuation</div>
+      <div class="marquee-text">• Monte Carlo Simulation</div>
+      <div class="marquee-text">• Quality of Earnings</div>
+      <div class="marquee-text">• LBO Analysis</div>
+      
+      <!-- Duplicate content nodes for seamless marquee -->
+      <div class="marquee-text">• Financial Modelling</div>
+      <div class="marquee-text">• Due Diligence</div>
+      <div class="marquee-text">• Quantitative Finance</div>
+      <div class="marquee-text">• Strategic Consulting</div>
+      <div class="marquee-text">• DCF Valuation</div>
+      <div class="marquee-text">• Monte Carlo Simulation</div>
+      <div class="marquee-text">• Quality of Earnings</div>
+      <div class="marquee-text">• LBO Analysis</div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 — SERVICE CARDS GRID SECTION -->
+  <section class="services-section">
+    <!-- Scrolling Header Inspired by Marco's -->
+    <div class="work-banner">
+      <div class="work-banner-inner">
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+        <div class="work-banner-text">• Some of our best work •</div>
+      </div>
+    </div>
+
+    <!-- 2x2 Grid of Interactive 3D Tilt Cards -->
+    <div class="grid-container">
+      
+      <!-- Card 01 -->
+      <div class="service-card reveal" data-index="0" data-color="linear-gradient(135deg, rgba(200, 245, 66, 0.15) 0%, rgba(255, 215, 0, 0.15) 100%)">
+        <div class="card-bg-img" style="background-image: url('assets/financial_modelling.png');"></div>
+        <div class="card-overlay"></div>
+        <div class="card-num">01</div>
+        <div>
+          <h2 class="card-title">Financial Modelling</h2>
+          <p class="card-tagline">Quantifying strategies, forecast structures, valuations.</p>
+        </div>
+      </div>
+
+      <!-- Card 02 -->
+      <div class="service-card reveal reveal-stagger" data-index="1" data-color="linear-gradient(135deg, rgba(255, 82, 82, 0.15) 0%, rgba(245, 245, 247, 0.1) 100%)">
+        <div class="card-bg-img" style="background-image: url('assets/due_diligence.png');"></div>
+        <div class="card-overlay"></div>
+        <div class="card-num">02</div>
+        <div>
+          <h2 class="card-title">Financial Due Diligence</h2>
+          <p class="card-tagline">Forensic deal oversight, quality of earnings, deal bridges.</p>
+        </div>
+      </div>
+
+      <!-- Card 03 -->
+      <div class="service-card reveal" data-index="2" data-color="linear-gradient(135deg, rgba(0, 112, 243, 0.15) 0%, rgba(0, 229, 255, 0.15) 100%)">
+        <div class="card-bg-img" style="background-image: url('assets/quantitative_finance.png');"></div>
+        <div class="card-overlay"></div>
+        <div class="card-num">03</div>
+        <div>
+          <h2 class="card-title">Quantitative Finance</h2>
+          <p class="card-tagline">Stochastic structures, random pricing, algorithmic analytics.</p>
+        </div>
+      </div>
+
+      <!-- Card 04 -->
+      <div class="service-card reveal reveal-stagger" data-index="3" data-color="linear-gradient(135deg, rgba(255, 179, 0, 0.15) 0%, rgba(78, 52, 46, 0.15) 100%)">
+        <div class="card-bg-img" style="background-image: url('assets/strategic_consulting.png');"></div>
+        <div class="card-overlay"></div>
+        <div class="card-num">04</div>
+        <div>
+          <h2 class="card-title">Strategic Consulting</h2>
+          <p class="card-tagline">Board advisory templates, target mapping, scale frameworks.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FLIP Takeover Placeholder Element -->
+  <div class="transition-card" id="transitionCard"></div>
+
+  <!-- SECTION 7 — SERVICE DETAIL PAGES (DYNAMIC RENDERING PREPARED IN OVERLAYS) -->
+  
+  <!-- Detail View Container -->
+  <div class="detail-overlay" id="detailOverlay">
+    <button class="back-btn" id="backBtn">
+      <span>←</span> Back to Grid
+    </button>
+    
+    <!-- Dynamic Detail Content Area -->
+    <div id="detailContent">
+      <!-- Injected dynamically by JS based on clicked card -->
+    </div>
+  </div>
+
+  <!-- SECTION 8 — CONTACT / FOOTER SECTION -->
+  <section class="contact-section" id="contact">
+    <h2 class="contact-title reveal">Come to say hello:</h2>
+    
+    <div class="social-stack">
+      
+      <!-- LinkedIn Node -->
+      <div class="social-item reveal">
+        <a href="https://linkedin.com" target="_blank" class="social-link">
+          LinkedIn <span>→</span>
+        </a>
+        <div class="social-line"></div>
+      </div>
+
+      <!-- Email Node -->
+      <div class="social-item reveal">
+        <a href="mailto:hello@analyticson.com" class="social-link">
+          Email <span>→</span>
+        </a>
+        <div class="social-line"></div>
+      </div>
+
+      <!-- Medium Node -->
+      <div class="social-item reveal">
+        <a href="https://medium.com" target="_blank" class="social-link">
+          Medium <span>→</span>
+        </a>
+        <div class="social-line"></div>
+      </div>
+
+      <!-- GitHub Node -->
+      <div class="social-item reveal">
+        <a href="https://github.com" target="_blank" class="social-link">
+          GitHub <span>→</span>
+        </a>
+        <div class="social-line"></div>
+      </div>
+
+    </div>
+
+    <!-- Bottom copyright row -->
+    <div class="footer-bottom">
+      <div>© 2025 Analytics_On — All rights reserved</div>
+      <div>Crafted with precision. Built for finance.</div>
+    </div>
+  </section>
+
+
+  <!-- SECTION 12 — DELIVERABLE JAVASCRIPT BLOCK -->
+  <script>
+    /* SECTION 1 — CURSOR SYSTEM */
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorFollower = document.getElementById('cursorFollower');
+    
+    let mouseX = 0, mouseY = 0;
+    let followerX = 0, followerY = 0;
+    const easeFactor = 0.08;
+
+    // Track real mouse position
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      // Keep dot anchored right under cursor
+      cursorDot.style.left = mouseX + 'px';
+      cursorDot.style.top = mouseY + 'px';
+    });
+
+    // Custom LERP follower calculation loop
+    function updateFollower() {
+      // Lerp logic: current = current + (target - current) * ease
+      followerX += (mouseX - followerX) * easeFactor;
+      followerY += (mouseY - followerY) * easeFactor;
+      
+      cursorFollower.style.left = followerX + 'px';
+      cursorFollower.style.top = followerY + 'px';
+      
+      requestAnimationFrame(updateFollower);
+    }
+    requestAnimationFrame(updateFollower);
+
+    // Hover effects over clickables
+    function setupCursorHovers() {
+      const clickables = document.querySelectorAll('a, button, .service-card, .back-btn, #menuOpen, #menuClose');
+      clickables.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          cursorFollower.style.width = '80px';
+          cursorFollower.style.height = '80px';
+          cursorFollower.style.backgroundColor = 'rgba(200, 245, 66, 0.15)';
+          cursorFollower.style.mixBlendMode = 'difference';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+          cursorFollower.style.width = '40px';
+          cursorFollower.style.height = '40px';
+          cursorFollower.style.backgroundColor = 'rgba(200, 245, 66, 0.35)';
+          cursorFollower.style.mixBlendMode = 'normal';
+        });
+      });
+    }
+
+
+    /* SECTION 2 — PAGE LOAD ANIMATION */
+    function initLoader() {
+      const loaderOverlay = document.getElementById('loaderOverlay');
+      const loaderCounter = document.getElementById('loaderCounter');
+      
+      let progress = 0;
+      // High-speed ledger load animation simulation
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 8) + 2;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // Complete load state
+          loaderCounter.textContent = `[ 100% ]`;
+          
+          setTimeout(() => {
+            // Slide UP preloader screen
+            loaderOverlay.classList.add('slide-up');
+            
+            // Trigger staggered entrance of hero H1 lines
+            setTimeout(() => {
+              const lines = document.querySelectorAll('.hero-text-inner');
+              lines.forEach((line, idx) => {
+                setTimeout(() => {
+                  line.classList.add('animate');
+                }, idx * 120);
+              });
+              
+              // Trigger descriptor fade in after 800ms
+              setTimeout(() => {
+                document.getElementById('heroDesc').classList.add('animate');
+              }, 800);
+            }, 300);
+          }, 300);
+        } else {
+          loaderCounter.textContent = `[ ${progress}% ]`;
+        }
+      }, 35);
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initLoader);
+    } else {
+      initLoader();
+    }
+
+
+    /* SECTION 3 — HAMBURGER TAKE OVER MENU NAVIGATION */
+    const menuOpen = document.getElementById('menuOpen');
+    const menuClose = document.getElementById('menuClose');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    menuOpen.addEventListener('click', () => {
+      menuOverlay.classList.add('active');
+    });
+
+    menuClose.addEventListener('click', () => {
+      menuOverlay.classList.remove('active');
+    });
+
+    // Helper to open details panel straight from hamburger items
+    function openDetailFromMenu(index) {
+      menuOverlay.classList.remove('active');
+      setTimeout(() => {
+        const cards = document.querySelectorAll('.service-card');
+        if(cards[index]) {
+          cards[index].click();
+        }
+      }, 300);
+    }
+
+
+    /* SECTION 6 — SERVICE CARDS 3D PERSPECTIVE TILT */
+    const cards = document.querySelectorAll('.service-card');
+    
+    // Check breakpoint width before running tilt computations
+    const isMobile = () => window.innerWidth <= 768;
+
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        if (isMobile()) return; // Disable calculations on mobile widths
+        
+        const rect = card.getBoundingClientRect();
+        // Compute delta positions relative to card center
+        const x = e.clientX - rect.left - rect.width/2;
+        const y = e.clientY - rect.top - rect.height/2;
+        
+        // Map movements to max 8 degree rotations
+        const rotX = -(y / (rect.height/2)) * 8;
+        const rotY = (x / (rect.width/2)) * 8;
+        
+        card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
+        
+        // Gradient sweep overlay moves along mouse vector coordinate
+        const sweepX = (x / (rect.width/2)) * 50;
+        card.style.setProperty('--sweep-x', `${sweepX}%`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        // Return smoothly to base position
+        card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+        card.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+      });
+      
+      card.addEventListener('mouseenter', () => {
+        card.style.transition = 'none'; // Instant tracking while mouse is active
+      });
+    });
+
+
+    /* SECTION 6 & 7 — ADVANCED 3-EFFECT FLIP TRANSITION */
+    const detailOverlay = document.getElementById('detailOverlay');
+    const detailContent = document.getElementById('detailContent');
+    const transitionCard = document.getElementById('transitionCard');
+    const backBtn = document.getElementById('backBtn');
+    
+    let activeCard = null; // Track current opened card geometry
+
+    // Detailed service contents database
+    const servicesData = [
+      {
+        title: "Financial Modelling",
+        desc: "Translating complex operational models into robust, mathematically structured quantitative frameworks for precision valuation.",
+        capabilities: [
+          "3-Statement Integrated Model (P&L, BS, CF)",
+          "DCF Valuation with sensitivity tables",
+          "LBO & Returns Analysis",
+          "Merger & Accretion/Dilution Models",
+          "Scenario Planning & Monte Carlo Simulation",
+          "Rolling Forecast & Budget Models"
+        ]
+      },
+      {
+        title: "Financial Due Diligence",
+        desc: "Forensic evaluation and deep balance sheet analysis to surface normalized earnings metrics, hidden debts, and transaction risk.",
+        capabilities: [
+          "Quality of Earnings (QoE) Analysis",
+          "Normalized EBITDA Bridge",
+          "Working Capital Peg & Seasonality Analysis",
+          "Net Debt Schedule & Off-Balance Sheet Items",
+          "Revenue Sustainability & Concentration Risk",
+          "Management Accounts vs Statutory Reconciliation"
+        ]
+      },
+      {
+        title: "Quantitative Finance",
+        desc: "Stochastic mathematics, portfolio analytics, and options pricing engines built to quantifiably measure and hedge portfolio risk profiles.",
+        capabilities: [
+          "Black-Scholes Options Pricing",
+          "Monte Carlo Portfolio Simulation",
+          "Value at Risk (VaR) & CVaR",
+          "Factor Model Construction (Fama-French)",
+          "Stochastic Calculus Applications",
+          "Mean-Variance Portfolio Optimization"
+        ]
+      },
+      {
+        title: "Strategic Consulting",
+        desc: "Translating forensic transaction findings and data insights into board-level strategy matrices to optimize long-term enterprise valuation.",
+        capabilities: [
+          "Market Entry & Competitive Positioning",
+          "M&A Target Screening & Strategic Rationale",
+          "Business Plan & Investor Memorandum",
+          "Operating Model Design & KPI Architecture",
+          "Capital Allocation Framework",
+          "Board-Level Financial Presentations"
+        ]
+      }
+    ];
+
+    let currentChartInstance = null; // Hold standard chart references to destroy before loading new ones
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const index = parseInt(card.getAttribute('data-index'));
+        activeCard = card;
+        
+        // Retrieve initial starting bounds
+        const initialRect = card.getBoundingClientRect();
+        
+        // 1. STAGE 1: MORPH & SCALE (Establish the FLIP animation bounds)
+        transitionCard.style.top = initialRect.top + 'px';
+        transitionCard.style.left = initialRect.left + 'px';
+        transitionCard.style.width = initialRect.width + 'px';
+        transitionCard.style.height = initialRect.height + 'px';
+        transitionCard.style.borderRadius = '4px';
+        transitionCard.style.background = '#0d0d0d';
+        transitionCard.style.active = 'block';
+        transitionCard.classList.add('active');
+        
+        // Fade standard grid elements to clear the backdrop
+        document.body.style.overflow = 'hidden'; // Lock background viewport scrolling
+        
+        // Force rendering paint cycle before starting FLIP scale
+        requestAnimationFrame(() => {
+          // 2. STAGE 2: THEME COLOR SWEEP (Trigger expansion and project brand sweep glow)
+          transitionCard.style.top = '0px';
+          transitionCard.style.left = '0px';
+          transitionCard.style.width = '100vw';
+          transitionCard.style.height = '100vh';
+          transitionCard.style.borderRadius = '0px';
+          
+          const customColor = card.getAttribute('data-color');
+          transitionCard.style.background = customColor;
+        });
+
+        // 3. STAGE 3: BACK-FADING & CONTENT STAGGER
+        setTimeout(() => {
+          transitionCard.style.background = '#000000'; // Settle sweep into pure dark room environment
+          
+          // Draw detailed service structures
+          renderDetailView(index);
+          detailOverlay.classList.add('active');
+          
+          setTimeout(() => {
+            transitionCard.classList.remove('active'); // Retract morph helper
+            setupDetailEntranceAnimations();
+            renderServiceChart(index); // Draw interactive Chart.js widget
+          }, 200);
+        }, 600);
+      });
+    });
+
+    // Close and reverse transition card details back down to 2x2 grid positions
+    backBtn.addEventListener('click', () => {
+      if (!activeCard) return;
+      
+      const gridRect = activeCard.getBoundingClientRect();
+      
+      // Re-setup helper transitions
+      transitionCard.style.top = '0px';
+      transitionCard.style.left = '0px';
+      transitionCard.style.width = '100vw';
+      transitionCard.style.height = '100vh';
+      transitionCard.style.background = '#000000';
+      transitionCard.classList.add('active');
+      
+      // Close overlay layers
+      detailOverlay.classList.remove('active');
+      
+      if(currentChartInstance) {
+        currentChartInstance.destroy();
+        currentChartInstance = null;
+      }
+      
+      requestAnimationFrame(() => {
+        // Sweep color gradient back during contraction
+        const customColor = activeCard.getAttribute('data-color');
+        transitionCard.style.background = customColor;
+        
+        setTimeout(() => {
+          // Snap helper down to the starting card boundaries
+          transitionCard.style.top = gridRect.top + 'px';
+          transitionCard.style.left = gridRect.left + 'px';
+          transitionCard.style.width = gridRect.width + 'px';
+          transitionCard.style.height = gridRect.height + 'px';
+          transitionCard.style.borderRadius = '4px';
+          transitionCard.style.background = '#0d0d0d';
+          
+          setTimeout(() => {
+            transitionCard.classList.remove('active');
+            document.body.style.overflow = ''; // Unlock standard page vertical scrollbars
+            activeCard = null;
+          }, 600);
+        }, 50);
+      });
+    });
+
+    // Draw detail HTML configurations dynamically
+    function renderDetailView(index) {
+      const data = servicesData[index];
+      
+      let chartTitle = "";
+      let belowContent = "";
+
+      if (index === 0) {
+        chartTitle = "DCF Sensitivity Analysis — WACC vs Terminal Growth Rate";
+        belowContent = `
+          <div class="data-table-container">
+            <table class="sens-table">
+              <thead>
+                <tr>
+                  <th>WACC / Growth</th>
+                  <th>1.0%</th>
+                  <th>2.0%</th>
+                  <th>3.0%</th>
+                  <th>4.0%</th>
+                  <th>5.0%</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="header-col">WACC 8%</td>
+                  <td class="cell-val-med">$420M</td>
+                  <td class="cell-val-med">$480M</td>
+                  <td class="cell-val-high">$560M</td>
+                  <td class="cell-val-high">$670M</td>
+                  <td class="cell-val-high">$830M</td>
+                </tr>
+                <tr>
+                  <td class="header-col">WACC 10%</td>
+                  <td class="cell-val-low">$310M</td>
+                  <td class="cell-val-med">$345M</td>
+                  <td class="cell-val-med">$390M</td>
+                  <td class="cell-val-med">$445M</td>
+                  <td class="cell-val-high">$520M</td>
+                </tr>
+                <tr>
+                  <td class="header-col">WACC 12%</td>
+                  <td class="cell-val-low">$240M</td>
+                  <td class="cell-val-low">$265M</td>
+                  <td class="cell-val-low">$295M</td>
+                  <td class="cell-val-med">$330M</td>
+                  <td class="cell-val-med">$375M</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (index === 1) {
+        chartTitle = "Quality of Earnings Bridge — Reported vs Normalised EBITDA";
+        belowContent = `
+          <div class="data-table-container">
+            <table class="fdd-risk-table">
+              <thead>
+                <tr>
+                  <th>Identified Due Diligence Risk Factor</th>
+                  <th>Severity Rating</th>
+                  <th>Target EV Impact</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capitalised Maintenance Expenses Misclassification</td>
+                  <td><span class="badge-pill badge-high">High</span></td>
+                  <td>$1.4M Reduction to Normalized EBITDA</td>
+                </tr>
+                <tr>
+                  <td>Unreconciled Intercompany Transaction Variances</td>
+                  <td><span class="badge-pill badge-medium">Medium</span></td>
+                  <td>$450K Restatement adjustments needed</td>
+                </tr>
+                <tr>
+                  <td>Historical Key Account Customer Churn Vulnerability</td>
+                  <td><span class="badge-pill badge-low">Low</span></td>
+                  <td>Potential threat to Q3 forecast metrics</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (index === 2) {
+        chartTitle = "Monte Carlo Simulation — Portfolio Value Paths (100 runs)";
+        belowContent = `
+          <div style="font-family: monospace; font-size: 12px; color: var(--text-muted); margin-top: 20px; line-height: 1.6;">
+            [Mathematical Framework]: Geometric Brownian Motion Random Walk generator running live:<br>
+            <span style="color: var(--accent);">dS_t = &mu; S_t dt + &sigma; S_t dW_t</span> &nbsp;&rArr;&nbsp; 
+            S(t) = S(0) &middot; exp((&mu; - &sigma;&sup2;/2)dt + &sigma;&radic;dt &middot; Z)<br>
+            *Parameters applied: Starting Value S(0) = $1.0M, Portfolio Drift &mu; = 12%, Portfolio Volatility &sigma; = 20% over 252 intervals.
+          </div>
+        `;
+      } else if (index === 3) {
+        chartTitle = "Strategic Health Assessment — Target Co. vs Industry Average";
+        belowContent = `
+          <div class="strat-rec-grid">
+            <div class="strat-rec-card">
+              <div class="strat-rec-header"><span>◈</span> Divest Low-Margin Segment</div>
+              <div class="strat-rec-desc">Reallocate structural capital to expand the high-velocity cloud solutions unit, accelerating overall revenue quality metrics.</div>
+            </div>
+            <div class="strat-rec-card">
+              <div class="strat-rec-header"><span>◉</span> Working Capital Optimisation</div>
+              <div class="strat-rec-desc">Restructure supply chain payables cycle terms to match collection lead times, unlocking $3.2M in annual free cash flow.</div>
+            </div>
+            <div class="strat-rec-card">
+              <div class="strat-rec-header"><span>◆</span> M&A Target Acquisition</div>
+              <div class="strat-rec-desc">Screen and identify regional logistics partners in South-East Asia to consolidate growth runways and scale operations.</div>
+            </div>
+            <div class="strat-rec-card">
+              <div class="strat-rec-header"><span>◇</span> Balance Sheet De-leveraging</div>
+              <div class="strat-rec-desc">Refinance high-yield mezzanine liabilities with senior secured debt terms during Q4 structural reorganization.</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Generate capabilities HTML structures
+      let capsHtml = "";
+      data.capabilities.forEach(cap => {
+        capsHtml += `
+          <div class="cap-item">
+            <a href="#" class="cap-text" onclick="event.preventDefault(); alert('Model Template: You can replace this link in the index.html source code to point to your live Google Sheet, Excel template, or PDF report for: \\n\\n» ${cap}');"><span>→</span> ${cap}</a>
+          </div>
+        `;
+      });
+
+      detailContent.innerHTML = `
+        <div class="detail-header">
+          <h1 class="detail-title" id="detailTitle">${data.title}</h1>
+          <p class="detail-desc" id="detailDesc">${data.desc}</p>
+        </div>
+
+        <div class="detail-capabilities">
+          <h3 class="caps-headline">Capabilities</h3>
+          <div class="caps-grid" id="capsGrid">
+            ${capsHtml}
+          </div>
+        </div>
+
+        <div class="case-study-section">
+          <h3 class="case-study-title">${chartTitle}</h3>
+          <div class="chart-container">
+            <canvas id="detailChartCanvas"></canvas>
+          </div>
+          ${belowContent}
+        </div>
+
+        <div class="detail-cta">
+          <h2 class="cta-heading" id="ctaHeading">Ready to work <span>together?</span></h2>
+          <div class="magnetic-btn-wrap">
+            <button class="magnetic-btn" id="ctaBtn">Let's talk →</button>
+          </div>
+        </div>
+      `;
+      
+      setupCursorHovers(); // Reinject listeners for newly spawned elements
+    }
+
+    // Slide up text and expand cap divider lines on page loads
+    function setupDetailEntranceAnimations() {
+      const title = document.getElementById('detailTitle');
+      const desc = document.getElementById('detailDesc');
+      const capItems = document.querySelectorAll('.cap-item');
+      const ctaHeading = document.getElementById('ctaHeading');
+      
+      // Trigger capabilities line draws via observers
+      const options = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+      const capObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) {
+            entry.target.classList.add('animate');
+            capObserver.unobserve(entry.target);
+          }
+        });
+      }, options);
+
+      capItems.forEach(item => capObserver.observe(item));
+
+      // Trigger CTA line draw observer
+      if (ctaHeading) {
+        const ctaObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if(entry.isIntersecting) {
+              entry.target.classList.add('animate');
+              ctaObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.5 });
+        ctaObserver.observe(ctaHeading);
+      }
+
+      // Add magnetic helper movements to CTA button
+      const ctaBtn = document.getElementById('ctaBtn');
+      if(ctaBtn) {
+        ctaBtn.addEventListener('mousemove', (e) => {
+          const rect = ctaBtn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width/2;
+          const y = e.clientY - rect.top - rect.height/2;
+          
+          ctaBtn.style.transform = `translate(${x * 0.35}px, ${y * 0.35}px)`;
+        });
+
+        ctaBtn.addEventListener('mouseleave', () => {
+          ctaBtn.style.transform = 'translate(0px, 0px)';
+        });
+      }
+    }
+
+
+    /* SECTION 7 — CHART.JS RENDER MECHANICS */
+    function renderServiceChart(index) {
+      const ctx = document.getElementById('detailChartCanvas').getContext('2d');
+      
+      if (typeof Chart === 'undefined') {
+        // Render a premium styled offline fallback dashboard inside the chart canvas parent
+        const parent = ctx.canvas.parentNode;
+        parent.innerHTML = `
+          <div style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; border:1px dashed rgba(255,255,255,0.08); border-radius:6px; padding:30px; font-family:monospace; color:var(--text-muted); font-size:12px; text-align:center; background-color:rgba(255,255,255,0.01);">
+            <div style="color:var(--accent); font-size:28px; margin-bottom:15px; animation: float 3s ease-in-out infinite;">⚡</div>
+            <span style="color:var(--text-primary); font-weight:bold; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px; display:block;">[ ANALYTICS_ON — OFFLINE FEEDS ]</span>
+            Stochastic financial model visualization requires secure CDN connection.<br>
+            Please check your network status to load live interactive chart nodes.
+          </div>
+        `;
+        return;
+      }
+      
+      // Global dark configurations overrides
+      Chart.defaults.color = 'rgba(240, 236, 228, 0.6)';
+      Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+      if (currentChartInstance) {
+        currentChartInstance.destroy();
+      }
+
+      if (index === 0) {
+        // SERVICE 1: FINANCIAL MODELLING — MULTI-LINE SENSITIVITY CHART
+        currentChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['1.0%', '2.0%', '3.0%', '4.0%', '5.0%'],
+            datasets: [
+              {
+                label: 'WACC 8%',
+                data: [420, 480, 560, 670, 830],
+                borderColor: '#c8f542',
+                backgroundColor: 'rgba(200, 245, 66, 0.1)',
+                borderWidth: 2,
+                tension: 0.1
+              },
+              {
+                label: 'WACC 10%',
+                data: [310, 345, 390, 445, 520],
+                borderColor: '#f0ece4',
+                backgroundColor: 'rgba(240, 236, 228, 0.1)',
+                borderWidth: 2,
+                tension: 0.1
+              },
+              {
+                label: 'WACC 12%',
+                data: [240, 265, 295, 330, 375],
+                borderColor: 'rgba(240, 236, 228, 0.3)',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                backgroundColor: '#0d0d0d',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                titleColor: '#c8f542',
+                bodyColor: '#f0ece4',
+                callbacks: {
+                  label: function(context) {
+                    return `Implied EV: $${context.raw}M`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+              y: { 
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                title: { display: true, text: 'Implied Enterprise Value ($M)' }
+              }
+            }
+          }
+        });
+
+      } else if (index === 1) {
+        // SERVICE 2: FINANCIAL DUE DILIGENCE — FLOATING WATERFALL BRIDGE
+        currentChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: [
+              'Reported EBITDA', 
+              'One-off Costs', 
+              'Revenue Timing', 
+              'Owner Costs', 
+              'Normalised EBITDA'
+            ],
+            datasets: [{
+              data: [
+                [0, 1800],     // base starts 0 to 1800
+                [1800, 2120],  // up 320
+                [1940, 2120],  // down 180 (starts at 1940 up to 2120)
+                [1940, 2180],  // up 240
+                [0, 2180]      // result starts 0 to 2180
+              ],
+              backgroundColor: [
+                'rgba(240,236,228,0.9)', // base Reported
+                '#c8f542',               // positive adjustment (+320)
+                'rgba(255,82,82,0.8)',   // negative adjustment (-180)
+                '#c8f542',               // positive adjustment (+240)
+                'rgba(240,236,228,0.9)'  // Normalized EBITDA
+              ],
+              borderWidth: 0,
+              borderRadius: 2
+            }]
+          },
+          options: {
+            indexAxis: 'y', // Set horizontal bar
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#0d0d0d',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    const bounds = context.raw;
+                    const val = Math.abs(bounds[1] - bounds[0]);
+                    return `Adjustment: $${val}K`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { 
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                title: { display: true, text: 'EBITDA Value ($K)' }
+              },
+              y: { grid: { display: false } }
+            }
+          }
+        });
+
+      } else if (index === 2) {
+        // SERVICE 3: QUANTITATIVE FINANCE — LIVE BROWNIAN MOTION PORTFOLIO SIMULATOR
+        const numIntervals = 253; // Day 0 to Day 252
+        const mu = 0.12;
+        const sigma = 0.20;
+        const dt = 1 / 252;
+        
+        // Helper standard normal generator
+        function boxMullerNormal() {
+          let u = 0, v = 0;
+          while(u === 0) u = Math.random();
+          while(v === 0) v = Math.random();
+          return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        // Generate dynamic asset price paths
+        function generatePath(S0, drift, vol) {
+          const path = [S0];
+          for(let i = 1; i < numIntervals; i++) {
+            const z = boxMullerNormal();
+            const prev = path[i-1];
+            const next = prev * Math.exp((drift - 0.5 * vol * vol) * dt + vol * Math.sqrt(dt) * z);
+            path.push(next);
+          }
+          return path;
+        }
+
+        // Construct 5 random background paths, 1 highlight, and confidence bands
+        const path1 = generatePath(1.0, mu, sigma);
+        const path2 = generatePath(1.0, mu, sigma);
+        const path3 = generatePath(1.0, mu, sigma);
+        const path4 = generatePath(1.0, mu, sigma);
+        const path5 = generatePath(1.0, mu, sigma);
+        
+        // Highlighted bold positive path
+        const boldPath = generatePath(1.0, mu + 0.06, sigma);
+        
+        // Confidence bands calculations
+        const upperConf = [];
+        const lowerConf = [];
+        for(let t = 0; t < numIntervals; t++) {
+          // Analytical lognormal confidence intervals: S(0)*exp( (mu - sigma^2/2)*t +/- z*sigma*sqrt(t) )
+          const time = t * dt;
+          const driftTerm = (mu - 0.5 * sigma * sigma) * time;
+          const upperVal = 1.0 * Math.exp(driftTerm + 1.28 * sigma * Math.sqrt(time)); // 90th percentile
+          const lowerVal = 1.0 * Math.exp(driftTerm - 1.28 * sigma * Math.sqrt(time)); // 10th percentile
+          upperConf.push(upperVal);
+          lowerConf.push(lowerVal);
+        }
+
+        const labels = Array.from({length: numIntervals}, (_, i) => i);
+
+        currentChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: '90th Percentile Bound',
+                data: upperConf,
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(200, 245, 66, 0.03)',
+                fill: false,
+                pointRadius: 0,
+                borderDash: [5, 5]
+              },
+              {
+                label: '10th Percentile Bound',
+                data: lowerConf,
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(200, 245, 66, 0.03)',
+                fill: '-1', // Fill area between lower and upper bands
+                pointRadius: 0,
+                borderDash: [5, 5]
+              },
+              {
+                label: 'Asset Path A',
+                data: path1,
+                borderColor: 'rgba(240, 236, 228, 0.15)',
+                borderWidth: 1,
+                pointRadius: 0
+              },
+              {
+                label: 'Asset Path B',
+                data: path2,
+                borderColor: 'rgba(240, 236, 228, 0.15)',
+                borderWidth: 1,
+                pointRadius: 0
+              },
+              {
+                label: 'Asset Path C',
+                data: path3,
+                borderColor: 'rgba(240, 236, 228, 0.15)',
+                borderWidth: 1,
+                pointRadius: 0
+              },
+              {
+                label: 'Asset Path D',
+                data: path4,
+                borderColor: 'rgba(240, 236, 228, 0.15)',
+                borderWidth: 1,
+                pointRadius: 0
+              },
+              {
+                label: 'Asset Path E',
+                data: path5,
+                borderColor: 'rgba(240, 236, 228, 0.15)',
+                borderWidth: 1,
+                pointRadius: 0
+              },
+              {
+                label: 'Highlighted Trajectory (Optimal)',
+                data: boldPath,
+                borderColor: '#c8f542',
+                borderWidth: 2.5,
+                pointRadius: 0
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: 2000,
+              easing: 'easeInOutQuad'
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  filter: function(item) {
+                    // Hide individual noise path labels from legend
+                    return item.text === 'Highlighted Trajectory (Optimal)' || item.text === '90th Percentile Bound';
+                  }
+                }
+              },
+              tooltip: {
+                backgroundColor: '#0d0d0d',
+                titleColor: '#c8f542',
+                bodyColor: '#f0ece4',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return `${context.dataset.label}: $${context.raw.toFixed(3)}M`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { 
+                grid: { display: false },
+                title: { display: true, text: 'Simulation Trading Intervals (Days 0-252)' }
+              },
+              y: { 
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                title: { display: true, text: 'Portfolio Value ($M)' }
+              }
+            }
+          }
+        });
+
+      } else if (index === 3) {
+        // SERVICE 4: STRATEGIC CONSULTING — SPIDER RADAR ASSESSMENTS
+        currentChartInstance = new Chart(ctx, {
+          type: 'radar',
+          data: {
+            labels: [
+              'Revenue Quality', 
+              'Cost Efficiency', 
+              'Market Position', 
+              'Management Depth', 
+              'Balance Sheet Strength', 
+              'Growth Runway'
+            ],
+            datasets: [
+              {
+                label: 'Target Co.',
+                data: [72, 58, 81, 65, 70, 55],
+                borderColor: '#c8f542',
+                backgroundColor: 'rgba(200, 245, 66, 0.15)',
+                borderWidth: 2,
+                pointBackgroundColor: '#c8f542'
+              },
+              {
+                label: 'Industry Avg',
+                data: [60, 65, 60, 70, 65, 68],
+                borderColor: '#f0ece4',
+                backgroundColor: 'rgba(240, 236, 228, 0.08)',
+                borderWidth: 1.5,
+                pointBackgroundColor: '#f0ece4'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                backgroundColor: '#0d0d0d',
+                titleColor: '#c8f542',
+                bodyColor: '#f0ece4',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1
+              }
+            },
+            scales: {
+              r: {
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                ticks: { display: false },
+                suggestedMin: 30,
+                suggestedMax: 100
+              }
+            }
+          }
+        });
+      }
+    }
+
+
+    /* SECTION 9 — SCROLL REVEALS OBSERVERS */
+    const revealElements = document.querySelectorAll('.reveal');
+    
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target); // Trigger only once
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    revealElements.forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    /* GLASS LENS 3D MAGNIFIER LOOP */
+    const heroSection = document.getElementById('about');
+    const glassLens = document.getElementById('glassLens');
+    const lensContent = document.getElementById('lensContent');
+
+    if (heroSection && glassLens && lensContent) {
+      // 1. Clone Hero Text into Lens Content Dynamically to avoid duplicate HTML markup maintenance
+      const mainHeroH1 = heroSection.querySelector('.hero-h1');
+      if (mainHeroH1) {
+        const h1Clone = mainHeroH1.cloneNode(true);
+        // Force active staggered animations inside lens clone
+        h1Clone.querySelectorAll('.hero-text-inner').forEach(inner => {
+          inner.style.transform = 'translateY(0)';
+          inner.style.opacity = '1';
+          inner.style.transition = 'none';
+        });
+        lensContent.appendChild(h1Clone);
+      }
+
+      // Physics variables
+      let lensX = 0, lensY = 0;
+      let targetLensX = 0, targetLensY = 0;
+      let lensActive = false;
+      
+      const lensWidth = 240;
+      const lensHeight = 240;
+      const lensScale = 1.12; // Magnification factor
+
+      // Track mouse hover and positions
+      heroSection.addEventListener('mousemove', (e) => {
+        if (window.innerWidth <= 768) return;
+
+        const rect = heroSection.getBoundingClientRect();
+        targetLensX = e.clientX - rect.left - lensWidth / 2;
+        targetLensY = e.clientY - rect.top - lensHeight / 2;
+        
+        if (!lensActive) {
+          lensActive = true;
+          glassLens.style.opacity = '1';
+        }
+      });
+
+      heroSection.addEventListener('mouseenter', () => {
+        if (window.innerWidth <= 768) return;
+        lensActive = true;
+        glassLens.style.opacity = '1';
+      });
+
+      heroSection.addEventListener('mouseleave', () => {
+        lensActive = false;
+        glassLens.style.opacity = '0';
+      });
+
+      // Easing LERP & Velocity Pitch/Roll 3D Tilt calculation loops
+      function updateLensPhysics() {
+        if (window.innerWidth > 768) {
+          // Easing movements
+          const dx = targetLensX - lensX;
+          const dy = targetLensY - lensY;
+          
+          lensX += dx * 0.07;
+          lensY += dy * 0.07;
+
+          // Map current speed/delta to 3D rotation angles (Pitch & Roll)
+          const pitch = -dy * 0.08;
+          const roll = dx * 0.08;
+          
+          const maxRotation = 18;
+          const clampedPitch = Math.min(Math.max(pitch, -maxRotation), maxRotation);
+          const clampedRoll = Math.min(Math.max(roll, -maxRotation), maxRotation);
+
+          // Apply 3D translate and tilt transforms to lens plate
+          glassLens.style.transform = `translate3d(${lensX}px, ${lensY}px, 0) rotateX(${clampedPitch}deg) rotateY(${clampedRoll}deg)`;
+
+          // Align the magnified duplicate text under the center lens coordinates
+          const originX = lensX + lensWidth / 2;
+          const originY = lensY + lensHeight / 2;
+          
+          lensContent.style.transformOrigin = `${originX}px ${originY}px`;
+          lensContent.style.transform = `translate(${-lensX}px, ${-lensY}px) scale(${lensScale})`;
+        }
+        
+        requestAnimationFrame(updateLensPhysics);
+      }
+      requestAnimationFrame(updateLensPhysics);
+    }
+
+    // Reinject cursors setups at standard starts
+    setupCursorHovers();
+  </script>
+</body>
+</html>
