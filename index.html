@@ -38,12 +38,15 @@
     }
 
     html, body {
-      background-color: var(--bg-color);
+      background: url('assets/background_vertical.png') no-repeat;
+      background-size: 100% 100%;
+      background-attachment: scroll;
       color: var(--text-primary);
       font-family: var(--font-body);
       overflow-x: hidden;
       scroll-behavior: smooth;
       width: 100%;
+      min-height: 100vh;
     }
 
     /* Hide scrollbar everywhere */
@@ -185,6 +188,25 @@
       color: var(--accent);
     }
 
+    header {
+      transition: background-color 0.3s, padding 0.3s, border-bottom 0.3s;
+    }
+    
+    header.scrolled {
+      background-color: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 15px 5%;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    header.scrolled .logo,
+    header.scrolled .logo span,
+    header.scrolled .nav-links a,
+    header.scrolled .menu-toggle {
+      color: #09122c !important;
+    }
+
     /* Full-screen Takeover Hamburger Menu */
     .menu-overlay {
       position: fixed;
@@ -268,13 +290,15 @@
 
     .hero-h1 {
       font-family: var(--font-display);
-      font-size: clamp(48px, 10vw, 140px);
+      font-size: clamp(44px, 7.5vw, 110px);
       font-weight: 800;
       line-height: 0.92;
       text-transform: uppercase;
       letter-spacing: -0.03em;
       display: flex;
       flex-direction: column;
+      word-break: normal;
+      overflow-wrap: break-word;
     }
 
     .hero-line {
@@ -1034,11 +1058,13 @@
     /* 3D Glass Refraction Plate */
     .glass-lens {
       position: absolute;
+      top: 0;
+      left: 0;
       width: 240px;
       height: 240px;
       border-radius: 30px;
       pointer-events: none;
-      z-index: 8;
+      z-index: 500;
       overflow: hidden;
       opacity: 0;
       transition: opacity 0.4s ease;
@@ -1067,22 +1093,113 @@
 
     .lens-content {
       position: absolute;
-      width: 100vw;
-      height: 100vh;
       pointer-events: none;
       transform-origin: 0 0;
       left: 0;
       top: 0;
-      padding: 120px 5% 60px 5%;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background-color: #000000;
+      background: url('assets/background_vertical.png') no-repeat;
+      background-size: 100% 100%;
+    }
+
+    #appWrapperClone {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .lens-content .hero-h1 {
       position: relative;
+    }
+
+    /* Light Theme Styling for Scrolled Sections */
+    .services-section {
+      background: transparent;
+    }
+
+    .work-banner-text {
+      color: rgba(9, 18, 44, 0.35) !important;
+    }
+
+    .contact-section {
+      background-color: transparent;
+      color: #09122c;
+    }
+
+    .contact-title {
+      color: #09122c !important;
+    }
+
+    .social-link {
+      color: #09122c !important;
+    }
+
+    .social-link span {
+      color: rgba(9, 18, 44, 0.6) !important;
+    }
+
+    .social-line {
+      background-color: rgba(9, 18, 44, 0.1) !important;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(9, 18, 44, 0.1) !important;
+      color: rgba(9, 18, 44, 0.6) !important;
+    }
+
+    /* Capability Modal Styles */
+    .capability-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-custom);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .capability-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .cap-modal-content {
+      background-color: #0b0b0d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+
+    .cap-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      transition: opacity 0.3s;
+    }
+
+    .cap-modal-close:hover {
+      opacity: 0.7;
     }
 
     /* SECTION 11 — MOBILE RESPONSIVENESS */
@@ -1100,7 +1217,7 @@
       }
 
       .hero-h1 {
-        font-size: clamp(48px, 12vw, 72px);
+        font-size: clamp(32px, 8.5vw, 56px);
       }
 
       .marquee-inner {
@@ -1146,8 +1263,16 @@
     <div class="loader-counter" id="loaderCounter">[ 0% ]</div>
   </div>
 
-  <!-- SECTION 3 — NAVIGATION -->
-  <header>
+  <!-- 3D Refraction/Magnification Glass Lens Plate -->
+  <div class="glass-lens" id="glassLens">
+    <div class="lens-magnifier" id="lensMagnifier">
+      <div class="lens-content" id="lensContent"></div>
+    </div>
+  </div>
+
+  <div id="appWrapper">
+    <!-- SECTION 3 — NAVIGATION -->
+    <header>
     <a href="#" class="logo">Analytics<span>_</span>On</a>
     <ul class="nav-links">
       <li><a href="#about"><span class="bullet">•</span>About</a></li>
@@ -1171,13 +1296,6 @@
 
   <!-- SECTION 4 — HERO SECTION -->
   <section class="hero" id="about">
-    <!-- 3D Refraction/Magnification Glass Lens Plate -->
-    <div class="glass-lens" id="glassLens">
-      <div class="lens-magnifier" id="lensMagnifier">
-        <div class="lens-content" id="lensContent"></div>
-      </div>
-    </div>
-
     <h1 class="hero-h1">
       <span class="hero-line"><span class="hero-text-inner hero-line-1">hello! I'm</span></span>
       <span class="hero-line"><span class="hero-text-inner hero-line-2">Analytics_On</span></span>
@@ -1286,7 +1404,7 @@
         <div class="card-num">04</div>
         <div>
           <h2 class="card-title">Strategic Consulting</h2>
-          <p class="card-tagline">Board advisory templates, target mapping, scale frameworks.</p>
+          <p class="card-tagline">Strategic advisory frameworks. Coming soon....</p>
         </div>
       </div>
 
@@ -1356,7 +1474,15 @@
       <div>Crafted with precision. Built for finance.</div>
     </div>
   </section>
+  </div>
 
+  <!-- SECTION 7.5 — CAPABILITY DETAIL MODAL -->
+  <div class="capability-modal" id="capabilityModal">
+    <div class="cap-modal-content">
+      <button class="cap-modal-close" id="capModalClose">×</button>
+      <div id="capModalBody"></div>
+    </div>
+  </div>
 
   <!-- SECTION 12 — DELIVERABLE JAVASCRIPT BLOCK -->
   <script>
@@ -1571,15 +1697,8 @@
       },
       {
         title: "Strategic Consulting",
-        desc: "Translating forensic transaction findings and data insights into board-level strategy matrices to optimize long-term enterprise valuation.",
-        capabilities: [
-          "Market Entry & Competitive Positioning",
-          "M&A Target Screening & Strategic Rationale",
-          "Business Plan & Investor Memorandum",
-          "Operating Model Design & KPI Architecture",
-          "Capital Allocation Framework",
-          "Board-Level Financial Presentations"
-        ]
+        desc: "Coming soon....",
+        capabilities: []
       }
     ];
 
@@ -1803,39 +1922,66 @@
       data.capabilities.forEach(cap => {
         capsHtml += `
           <div class="cap-item">
-            <a href="#" class="cap-text" onclick="event.preventDefault(); alert('Model Template: You can replace this link in the index.html source code to point to your live Google Sheet, Excel template, or PDF report for: \\n\\n» ${cap}');"><span>→</span> ${cap}</a>
+            <a href="#" class="cap-text" onclick="event.preventDefault(); showCapabilityModel('${cap.replace(/'/g, "\\'")}');"><span>→</span> ${cap}</a>
           </div>
         `;
       });
 
-      detailContent.innerHTML = `
-        <div class="detail-header">
-          <h1 class="detail-title" id="detailTitle">${data.title}</h1>
-          <p class="detail-desc" id="detailDesc">${data.desc}</p>
-        </div>
-
-        <div class="detail-capabilities">
-          <h3 class="caps-headline">Capabilities</h3>
-          <div class="caps-grid" id="capsGrid">
-            ${capsHtml}
+      if (index === 3) {
+        detailContent.innerHTML = `
+          <div class="detail-header">
+            <h1 class="detail-title" id="detailTitle">${data.title}</h1>
+            <p class="detail-desc" id="detailDesc">${data.desc}</p>
           </div>
-        </div>
 
-        <div class="case-study-section">
-          <h3 class="case-study-title">${chartTitle}</h3>
-          <div class="chart-container">
-            <canvas id="detailChartCanvas"></canvas>
+          <div style="background-color: #080808; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 60px 40px; margin-bottom: 80px; text-align: center; font-family: var(--font-body);">
+            <div style="color: var(--accent); font-size: 48px; margin-bottom: 20px; animation: float 3s ease-in-out infinite;">◈</div>
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">[ Strategic Suite Under Construction ]</h3>
+            <p style="color: var(--text-muted); font-size: 16px; max-width: 600px; margin: 0 auto 30px auto; line-height: 1.6;">
+              We are currently designing and refining our proprietary board-level strategy matrices, target company screening databases, and capital allocation templates.
+            </p>
+            <div style="display: inline-block; padding: 8px 16px; border-radius: 20px; background-color: rgba(200, 245, 66, 0.1); border: 1px solid rgba(200, 245, 66, 0.2); color: var(--accent); font-family: monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">
+              Status: Coming Soon
+            </div>
           </div>
-          ${belowContent}
-        </div>
 
-        <div class="detail-cta">
-          <h2 class="cta-heading" id="ctaHeading">Ready to work <span>together?</span></h2>
-          <div class="magnetic-btn-wrap">
-            <button class="magnetic-btn" id="ctaBtn">Let's talk →</button>
+          <div class="detail-cta">
+            <h2 class="cta-heading" id="ctaHeading">Ready to work <span>together?</span></h2>
+            <div class="magnetic-btn-wrap">
+              <button class="magnetic-btn" id="ctaBtn">Let's talk →</button>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      } else {
+        detailContent.innerHTML = `
+          <div class="detail-header">
+            <h1 class="detail-title" id="detailTitle">${data.title}</h1>
+            <p class="detail-desc" id="detailDesc">${data.desc}</p>
+          </div>
+
+          <div class="detail-capabilities">
+            <h3 class="caps-headline">Capabilities</h3>
+            <div class="caps-grid" id="capsGrid">
+              ${capsHtml}
+            </div>
+          </div>
+
+          <div class="case-study-section">
+            <h3 class="case-study-title">${chartTitle}</h3>
+            <div class="chart-container">
+              <canvas id="detailChartCanvas"></canvas>
+            </div>
+            ${belowContent}
+          </div>
+
+          <div class="detail-cta">
+            <h2 class="cta-heading" id="ctaHeading">Ready to work <span>together?</span></h2>
+            <div class="magnetic-btn-wrap">
+              <button class="magnetic-btn" id="ctaBtn">Let's talk →</button>
+            </div>
+          </div>
+        `;
+      }
       
       setupCursorHovers(); // Reinject listeners for newly spawned elements
     }
@@ -1893,7 +2039,10 @@
 
     /* SECTION 7 — CHART.JS RENDER MECHANICS */
     function renderServiceChart(index) {
-      const ctx = document.getElementById('detailChartCanvas').getContext('2d');
+      if (index === 3) return; // No chart for Strategic Consulting
+      const canvasEl = document.getElementById('detailChartCanvas');
+      if (!canvasEl) return;
+      const ctx = canvasEl.getContext('2d');
       
       if (typeof Chart === 'undefined') {
         // Render a premium styled offline fallback dashboard inside the chart canvas parent
@@ -2278,54 +2427,115 @@
     });
 
     /* GLASS LENS 3D MAGNIFIER LOOP */
-    const heroSection = document.getElementById('about');
     const glassLens = document.getElementById('glassLens');
     const lensContent = document.getElementById('lensContent');
 
-    if (heroSection && glassLens && lensContent) {
-      // 1. Clone Hero Text into Lens Content Dynamically to avoid duplicate HTML markup maintenance
-      const mainHeroH1 = heroSection.querySelector('.hero-h1');
-      if (mainHeroH1) {
-        const h1Clone = mainHeroH1.cloneNode(true);
-        // Force active staggered animations inside lens clone
-        h1Clone.querySelectorAll('.hero-text-inner').forEach(inner => {
+    if (glassLens && lensContent) {
+      // 1. Clone App Wrapper into Lens Content Dynamically
+      const appWrapper = document.getElementById('appWrapper');
+      let wrapperClone = null;
+      if (appWrapper) {
+        wrapperClone = appWrapper.cloneNode(true);
+        wrapperClone.id = 'appWrapperClone';
+        
+        wrapperClone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+        
+        wrapperClone.querySelectorAll('.hero-text-inner').forEach(inner => {
           inner.style.transform = 'translateY(0)';
           inner.style.opacity = '1';
           inner.style.transition = 'none';
         });
-        lensContent.appendChild(h1Clone);
+        
+        wrapperClone.querySelectorAll('.reveal').forEach(el => {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+        
+        lensContent.appendChild(wrapperClone);
       }
 
       // Physics variables
       let lensX = 0, lensY = 0;
       let targetLensX = 0, targetLensY = 0;
       let lensActive = false;
+      let clientMouseX = 0;
+      let clientMouseY = 0;
       
       const lensWidth = 240;
       const lensHeight = 240;
       const lensScale = 1.12; // Magnification factor
 
-      // Track mouse hover and positions
-      heroSection.addEventListener('mousemove', (e) => {
+      // Sync clone size with actual body size
+      function syncCloneDimensions() {
+        if (!wrapperClone) return;
+        const bodyHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+        const bodyWidth = document.documentElement.clientWidth || window.innerWidth;
+        lensContent.style.width = bodyWidth + 'px';
+        lensContent.style.height = bodyHeight + 'px';
+        wrapperClone.style.width = bodyWidth + 'px';
+        wrapperClone.style.height = bodyHeight + 'px';
+      }
+
+      syncCloneDimensions();
+      window.addEventListener('resize', syncCloneDimensions);
+
+      // Sync cloned header position and scrolled class on scroll to align with the fixed header
+      if (wrapperClone) {
+        const cloneHeader = wrapperClone.querySelector('header');
+        if (cloneHeader) {
+          cloneHeader.style.position = 'absolute';
+          const syncHeader = () => {
+            cloneHeader.style.top = window.scrollY + 'px';
+            if (window.scrollY > 80) {
+              cloneHeader.classList.add('scrolled');
+            } else {
+              cloneHeader.classList.remove('scrolled');
+            }
+          };
+          syncHeader();
+          window.addEventListener('scroll', syncHeader);
+        }
+      }
+
+      // Function to calculate page-relative target coordinates from viewport coordinates
+      function updateTargetLensPosition() {
+        targetLensX = window.scrollX + clientMouseX - lensWidth / 2;
+        targetLensY = window.scrollY + clientMouseY - lensHeight / 2;
+      }
+
+      // Track mouse hover and positions across the entire window
+      window.addEventListener('mousemove', (e) => {
         if (window.innerWidth <= 768) return;
 
-        const rect = heroSection.getBoundingClientRect();
-        targetLensX = e.clientX - rect.left - lensWidth / 2;
-        targetLensY = e.clientY - rect.top - lensHeight / 2;
+        clientMouseX = e.clientX;
+        clientMouseY = e.clientY;
+        updateTargetLensPosition();
         
-        if (!lensActive) {
-          lensActive = true;
-          glassLens.style.opacity = '1';
+        const detailOverlay = document.getElementById('detailOverlay');
+        const capModal = document.getElementById('capabilityModal');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        const isOverlayActive = (detailOverlay && detailOverlay.classList.contains('active')) ||
+                               (capModal && capModal.classList.contains('active')) ||
+                               (menuOverlay && menuOverlay.classList.contains('active'));
+                               
+        if (isOverlayActive) {
+          lensActive = false;
+          glassLens.style.opacity = '0';
+        } else {
+          if (!lensActive) {
+            lensActive = true;
+            glassLens.style.opacity = '1';
+          }
         }
       });
 
-      heroSection.addEventListener('mouseenter', () => {
+      window.addEventListener('scroll', () => {
         if (window.innerWidth <= 768) return;
-        lensActive = true;
-        glassLens.style.opacity = '1';
+        updateTargetLensPosition();
       });
 
-      heroSection.addEventListener('mouseleave', () => {
+      document.addEventListener('mouseleave', () => {
         lensActive = false;
         glassLens.style.opacity = '0';
       });
@@ -2333,14 +2543,12 @@
       // Easing LERP & Velocity Pitch/Roll 3D Tilt calculation loops
       function updateLensPhysics() {
         if (window.innerWidth > 768) {
-          // Easing movements
           const dx = targetLensX - lensX;
           const dy = targetLensY - lensY;
           
-          lensX += dx * 0.07;
-          lensY += dy * 0.07;
+          lensX += dx * 0.24;
+          lensY += dy * 0.24;
 
-          // Map current speed/delta to 3D rotation angles (Pitch & Roll)
           const pitch = -dy * 0.08;
           const roll = dx * 0.08;
           
@@ -2348,10 +2556,8 @@
           const clampedPitch = Math.min(Math.max(pitch, -maxRotation), maxRotation);
           const clampedRoll = Math.min(Math.max(roll, -maxRotation), maxRotation);
 
-          // Apply 3D translate and tilt transforms to lens plate
           glassLens.style.transform = `translate3d(${lensX}px, ${lensY}px, 0) rotateX(${clampedPitch}deg) rotateY(${clampedRoll}deg)`;
 
-          // Align the magnified duplicate text under the center lens coordinates
           const originX = lensX + lensWidth / 2;
           const originY = lensY + lensHeight / 2;
           
@@ -2362,6 +2568,291 @@
         requestAnimationFrame(updateLensPhysics);
       }
       requestAnimationFrame(updateLensPhysics);
+    }
+
+    // Scrolled header glass background transition
+    const siteHeader = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 80) {
+        siteHeader.classList.add('scrolled');
+      } else {
+        siteHeader.classList.remove('scrolled');
+      }
+    });
+
+    // Capability Modal Event Listeners
+    const capModal = document.getElementById('capabilityModal');
+    const capModalClose = document.getElementById('capModalClose');
+    if (capModal && capModalClose) {
+      capModalClose.addEventListener('click', () => {
+        capModal.classList.remove('active');
+        if (!document.getElementById('detailOverlay').classList.contains('active')) {
+          document.body.style.overflow = '';
+        }
+      });
+      capModal.addEventListener('click', (e) => {
+        if (e.target === capModal) {
+          capModalClose.click();
+        }
+      });
+    }
+
+    // Function to render and show capability modal content
+    function showCapabilityModel(capName) {
+      const capModal = document.getElementById('capabilityModal');
+      const capModalBody = document.getElementById('capModalBody');
+      
+      if (!capModal || !capModalBody) return;
+      
+      capModalBody.innerHTML = '';
+      
+      if (capName === "LBO & Returns Analysis") {
+        capModalBody.innerHTML = `
+          <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">LBO Return Analysis</h2>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Leveraged Buyout Model — HVAC Inc.</p>
+          
+          <div style="margin-bottom: 25px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000;">
+            <img src="assets/lbo_screenshot_1.png" alt="LBO Model Overview — Assumptions & Financing" style="width: 100%; height: auto; display: block;" />
+            <div style="padding: 12px 20px; font-family: monospace; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
+              Fig 1.0: LBO Model Assumptions, Operating Scenarios & Financing Structure
+            </div>
+          </div>
+
+          <div style="margin-bottom: 35px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000;">
+            <img src="assets/lbo_screenshot_2.png" alt="LBO Model Returns & Cash Flows" style="width: 100%; height: auto; display: block;" />
+            <div style="padding: 12px 20px; font-family: monospace; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
+              Fig 1.1: Sponsor IRR Matrix, Cash Flow Projections & Debt Reduction Charts
+            </div>
+          </div>
+          
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Executive Return Summary</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Internal Rate of Return (IRR)</div>
+              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--accent);">29.6%</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Multiple on Invested Capital (MOIC)</div>
+              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: #ffffff;">5.99x</div>
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Return Attribution Breakdown</h3>
+          <div class="data-table-container" style="margin-bottom: 30px;">
+            <table class="sens-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Value Driver</th>
+                  <th>Amount ($000s)</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">EBITDA Growth</td>
+                  <td>$167,110</td>
+                  <td class="cell-val-high">44%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Multiple Expansion</td>
+                  <td>$0</td>
+                  <td>0%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Cash Contribution / Debt Paydown</td>
+                  <td>$14,710</td>
+                  <td class="cell-val-med">4%</td>
+                </tr>
+                <tr style="border-top: 2px solid rgba(255,255,255,0.15);">
+                  <td style="text-align: left; font-weight: bold; color: var(--text-primary);">Total Return (Exit Equity)</td>
+                  <td style="font-weight: bold;">$377,089</td>
+                  <td style="font-weight: bold; color: var(--accent);">100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Transaction Parameters</h3>
+          <div class="data-table-container" style="margin-bottom: 30px;">
+            <table class="sens-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Metric</th>
+                  <th>Value ($000s)</th>
+                  <th>Multiple / Detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Enterprise Value</td>
+                  <td>$169,000</td>
+                  <td>6.5x EV/EBITDA</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Less: Net Debt</td>
+                  <td>-$31,000</td>
+                  <td>Refinanced at Entry</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Plus: Cash Balance</td>
+                  <td>$57,269</td>
+                  <td>Target Balance</td>
+                </tr>
+                <tr style="font-weight: bold; border-top: 1px solid rgba(255,255,255,0.1);">
+                  <td style="text-align: left; color: var(--text-primary);">Equity Offer Value</td>
+                  <td>$195,269</td>
+                  <td>$13.00 per share (20% Premium)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+            <strong>Analysis:</strong> The transaction of HVAC Inc. is structured at an entry multiple of 6.5x EV/EBITDA. Value creation is primarily driven by operating growth (EBITDA growth accounts for 44% of value creation, or $167.1M), supplemented by cash accretion of $14.7M (4% of returns). The target leverage structure enables a strong cash paydown trajectory, yielding an exceptional <strong>29.6% IRR</strong> and <strong>5.99x MOIC</strong> over the forecast horizon.
+          </p>
+        `;
+      } else if (capName === "3-Statement Integrated Model (P&L, BS, CF)") {
+        capModalBody.innerHTML = `
+          <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">3-Statement Integrated Model</h2>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Fully Integrated Financial Model — HVAC Inc.</p>
+          
+          <div style="margin-bottom: 35px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000;">
+            <img src="assets/three_statement_model_screenshot.png" alt="3-Statement Integrated Model Screenshot" style="width: 100%; height: auto; display: block;" />
+            <div style="padding: 12px 20px; font-family: monospace; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
+              Fig 2.0: Dynamic 3-Statement Model with Master Error Checks (Financial Model Sheet)
+            </div>
+          </div>
+          
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Model Error Check Indicators</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+            <div style="background-color: rgba(200, 245, 66, 0.03); border: 1px solid rgba(200, 245, 66, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Balance Sheet Check</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--accent);">OK</div>
+            </div>
+            <div style="background-color: rgba(200, 245, 66, 0.03); border: 1px solid rgba(200, 245, 66, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Cash Flow Check</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--accent);">OK</div>
+            </div>
+            <div style="background-color: rgba(200, 245, 66, 0.03); border: 1px solid rgba(200, 245, 66, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Model Status</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--accent);">OK</div>
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Financial Model Summary (USD $000s)</h3>
+          <div class="data-table-container" style="margin-bottom: 30px;">
+            <table class="sens-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Line Item</th>
+                  <th>2026A</th>
+                  <th>2027F</th>
+                  <th>2028F</th>
+                  <th>2029F</th>
+                  <th>2030F</th>
+                  <th>2031F</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Revenue</td>
+                  <td>100.0</td>
+                  <td>103.5</td>
+                  <td>107.1</td>
+                  <td>110.9</td>
+                  <td>114.8</td>
+                  <td>118.8</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary); font-style: italic;">Revenue Growth</td>
+                  <td>-</td>
+                  <td>3.5%</td>
+                  <td>3.5%</td>
+                  <td>3.5%</td>
+                  <td>3.5%</td>
+                  <td>3.5%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">EBITDA</td>
+                  <td>41.0</td>
+                  <td>42.4</td>
+                  <td>43.9</td>
+                  <td>45.5</td>
+                  <td>47.0</td>
+                  <td>48.7</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Net Income</td>
+                  <td>24.9</td>
+                  <td>26.0</td>
+                  <td>27.2</td>
+                  <td>28.2</td>
+                  <td>29.3</td>
+                  <td>30.3</td>
+                </tr>
+                <tr style="border-top: 1.5px solid rgba(255,255,255,0.08); font-weight: bold;">
+                  <td style="text-align: left; color: var(--text-primary);">Total Assets</td>
+                  <td>80.7</td>
+                  <td>98.0</td>
+                  <td>122.0</td>
+                  <td>147.3</td>
+                  <td>173.9</td>
+                  <td>201.9</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary); font-style: italic;">Cash Balance</td>
+                  <td style="color: var(--accent);">10.0</td>
+                  <td style="color: var(--accent);">22.2</td>
+                  <td style="color: var(--accent);">41.2</td>
+                  <td style="color: var(--accent);">61.6</td>
+                  <td style="color: var(--accent);">83.4</td>
+                  <td style="color: var(--accent);">106.6</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Total Liabilities</td>
+                  <td>52.8</td>
+                  <td>44.1</td>
+                  <td>40.8</td>
+                  <td>37.8</td>
+                  <td>35.2</td>
+                  <td>32.9</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Total Equity</td>
+                  <td>27.9</td>
+                  <td>53.9</td>
+                  <td>81.2</td>
+                  <td>109.4</td>
+                  <td>138.7</td>
+                  <td>169.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+            <strong>Analysis:</strong> The 3-statement model of HVAC Inc. demonstrates a healthy growth profile, with revenues compounding steadily at 3.5% per annum. Operating margins remain stable, pushing EBITDA from $41.0K to $48.7K. Strong cash generation allows the company to build cash reserves from $10.0K to $106.6K while fully deleveraging (repaying revolver debt completely and amortizing term loan debt down from $40.0K to $23.6K). The balance sheet remains fully matched and balanced across the forecast period.
+          </p>
+        `;
+      } else {
+        capModalBody.innerHTML = `
+          <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">${capName}</h2>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Financial Capability Overview</p>
+          
+          <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 30px; border-radius: 8px; font-family: var(--font-body); color: var(--text-muted); line-height: 1.7; margin-bottom: 30px;">
+            <p style="margin-bottom: 15px;">This section displays details for: <strong style="color: var(--text-primary);">${capName}</strong>.</p>
+            <p>Our custom interactive model templates are configured with premium client visual layouts, integrated assumptions libraries, dynamic sensitivity analyses, and clean audit flow protocols.</p>
+          </div>
+          
+          <div style="padding: 20px; border-radius: 6px; background-color: rgba(200, 245, 66, 0.05); border: 1px dashed rgba(200, 245, 66, 0.2); font-family: monospace; font-size: 12px; color: var(--text-primary); line-height: 1.5;">
+            <span style="color: var(--accent); font-weight: bold;">[ Integration Notice ]</span><br>
+            You can link your live Google Sheet, Excel file, or PDF report directly to this menu link inside the index.html source code by replacing this callback hook.
+          </div>
+        `;
+      }
+      
+      capModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
 
     // Reinject cursors setups at standard starts
