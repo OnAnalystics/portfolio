@@ -1251,6 +1251,54 @@
         text-align: center;
       }
     }
+
+    /* Dynamic Slide Navigation Buttons (Pulsing & Bouncing Arrow Hints) */
+    .slide-nav-btn {
+      background: none !important;
+      border: none !important;
+      color: var(--accent) !important;
+      cursor: pointer !important;
+      font-family: monospace !important;
+      font-size: 12px !important;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+      position: relative !important;
+      opacity: 0.85;
+      outline: none !important;
+    }
+    .slide-nav-btn:not(:disabled) {
+      animation: slideBtnPulse 2.0s infinite ease-in-out;
+    }
+    .slide-nav-btn:disabled {
+      color: rgba(255, 255, 255, 0.15) !important;
+      cursor: not-allowed !important;
+      animation: none !important;
+      transform: none !important;
+      text-shadow: none !important;
+      opacity: 0.5 !important;
+    }
+    .slide-nav-btn-next:not(:disabled):hover {
+      transform: translateX(4px);
+      opacity: 1;
+      color: #ffffff !important;
+      text-shadow: 0 0 8px var(--accent);
+    }
+    .slide-nav-btn-prev:not(:disabled):hover {
+      transform: translateX(-4px);
+      opacity: 1;
+      color: #ffffff !important;
+      text-shadow: 0 0 8px var(--accent);
+    }
+    
+    @keyframes slideBtnPulse {
+      0%, 100% {
+        opacity: 0.8;
+        text-shadow: 0 0 2px rgba(200, 245, 66, 0);
+      }
+      50% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(200, 245, 66, 0.65);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1677,6 +1725,7 @@
         title: "Financial Due Diligence",
         desc: "Forensic evaluation and deep balance sheet analysis to surface normalized earnings metrics, hidden debts, and transaction risk.",
         capabilities: [
+          "Credit Memo Analysis Report (McDonald's)",
           "Quality of Earnings (QoE) Analysis",
           "Normalized EBITDA Bridge",
           "Working Capital Peg & Seasonality Analysis",
@@ -2609,10 +2658,54 @@
       capModalBody.innerHTML = '';
       
       if (capName === "LBO & Returns Analysis") {
+        const slideData = [
+          { img: "assets/hvac_slide_1.png", title: "Slide 1 — Cover Page", text: "<strong>HVAC Inc. Credit Memo & Due Diligence Analysis Report</strong><br>Acquisition Opportunity Summary: Leading commercial HVAC services platform. Target Enterprise Value: $169.0M, Sponsor Equity: $62.9M." },
+          { img: "assets/hvac_slide_2.png", title: "Slide 2 — Executive Summary", text: "<strong>Deal Context & Investment Thesis:</strong> HVAC Inc. is an established provider of commercial & industrial climate control services. Transaction structured at 6.5x EV/EBITDA, utilizing $122.2M debt and $62.9M Sponsor Equity. Implied exit returns show 29.6% IRR and 5.99x MOIC under the base case scenario." },
+          { img: "assets/hvac_slide_3.png", title: "Slide 3 — Business Profile", text: "<strong>A Well-Positioned Commercial HVAC Platform:</strong><br>• <strong>Sector:</strong> Commercial HVAC Services & Industrial Clients<br>• <strong>Recurring Revenue:</strong> ~65% of revenues derived from service contracts<br>• <strong>Historical CAGR:</strong> 8.6% revenue growth (2023-2026)<br>• <strong>EBITDA Expansion:</strong> EBITDA margin expanded from 25.1% in 2023 to 39.1% in 2026<br>• <strong>Asset-Light:</strong> Low capex requirements (8-9% of revenue) drive strong free cash flow conversion." },
+          { img: "assets/hvac_slide_4.png", title: "Slide 4 — Financial Performance", text: "<strong>Historical Financial Performance (2023-2026):</strong><br>Consistent top-line growth and margin expansion:<br>• <strong>2026 Revenue:</strong> $79.7M (up from $57.1M in 2023 at 8.6% CAGR)<br>• <strong>2026 EBITDA Margin:</strong> 39.1% (expanded from 25.1% in 2023)<br>• <strong>2026 Net Earnings:</strong> $13.2M (up from $1.1M in 2023)<br>Reflects strong operating leverage and expansion of the high-margin recurring service base." },
+          { img: "assets/hvac_slide_5.png", title: "Slide 5 — Transaction Structure", text: "<strong>Sources & Uses of Funds:</strong><br>• <strong>Enterprise Value:</strong> $169.0M | <strong>Equity Value:</strong> $195.3M (6.5x EV/EBITDA)<br>• <strong>Uses ($000s):</strong> Equity Consideration: $195,269; Refinance Debt: $31,000; Fees & Closing Costs: $6,148 | <strong>Total: $232,417</strong><br>• <strong>Debt Capital Structure ($122.2M total):</strong><br>&nbsp;&nbsp;- Line of Credit: $6,500 (3.0% coupon)<br>&nbsp;&nbsp;- Term Loan A: $52,000 (5.0% coupon)<br>&nbsp;&nbsp;- Term Loan B: $52,000 (7.0% coupon)<br>&nbsp;&nbsp;- Subordinated Mezzanine: $11,700 (12.0% coupon)" },
+          { img: "assets/hvac_slide_6.png", title: "Slide 6 — Operational Assumptions", text: "<strong>Base Case Assumptions (Conservative & Organic):</strong><br>• <strong>Revenue Growth:</strong> 6.3% annually (conservative vs 11.7% historical)<br>• <strong>COGS Improvement:</strong> 38% down to 36% (vendor & procurement consolidation)<br>• <strong>Capex:</strong> Maintained at 8% of revenue (fleet & tools)<br>• <strong>Fixed G&A:</strong> Flat at $7.0M annually, driving strong operating leverage as the platform scales." },
+          { img: "assets/hvac_slide_7.png", title: "Slide 7 — Returns Analysis", text: "<strong>Returns Scenario Analysis:</strong><br>• <strong>Optimistic:</strong> 35.5% IRR (faster operational improvements)<br>• <strong>Current Case (Base):</strong> 29.6% IRR (6.3% growth, 36% COGS)<br>• <strong>Pessimistic:</strong> 15.2% IRR (revenue decline of 2.6%, high COGS stress-test)<br>• <strong>Multiple Sensitivity:</strong> Base IRR exceeds 20% in all scenarios, even if entry multiple is 7.0x and exit is 5.0x (assumes zero multiple expansion in base case)." },
+          { img: "assets/hvac_slide_8.png", title: "Slide 8 — Deleveraging Profile", text: "<strong>Rapid Deleveraging Projection:</strong><br>• 50% cash sweep on Term Loans A and B drives complete debt repayment by Year 6 (2032).<br>• Annual interest expense drops from $7.2M at entry to $0.7M at exit.<br>• De-leveraging from 2.7x to 0.0x Net Debt/EBITDA reduces financial risk and unlocks substantial exit flexibility." },
+          { img: "assets/hvac_slide_9.png", title: "Slide 9 — Risk Assessment", text: "<strong>Key Risks & Mitigants:</strong><br>• <strong>Growth Risk:</strong> Slowdown offset by ~65% recurring service contracts.<br>• <strong>Margin Pressure:</strong> Pass-through contract terms mitigate labor/materials cost inflation.<br>• <strong>Exit Risk:</strong> High liquidity from strategic buyers (Carrier, Daikin, Trane) and secondary PE markets." },
+          { img: "assets/hvac_slide_10.png", title: "Slide 10 — Recommendation", text: "<strong>Investment Recommendation: Approve.</strong><br>Compelling risk-adjusted return profile (29.6% IRR / 5.99x MOIC) built on operational value creation, rapid deleveraging, and attractive valuation cushion (6.5x entry multiple vs 8-10x peer median)." }
+        ];
+
+        window.currentLboSlideIndex = 0;
+
         capModalBody.innerHTML = `
           <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">LBO Return Analysis</h2>
-          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Leveraged Buyout Model — HVAC Inc.</p>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Leveraged Buyout Model & Credit Memo — HVAC Inc.</p>
           
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Executive Return Summary</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Internal Rate of Return (IRR)</div>
+              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--accent);">29.6%</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Multiple on Invested Capital (MOIC)</div>
+              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: #ffffff;">5.99x</div>
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Credit Memo Presentation Slides</h3>
+          <div class="slideshow-container" style="margin-bottom: 30px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000; position: relative;">
+            <div style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background-color: #050505; display: flex; justify-content: center; align-items: center;">
+              <img id="modalLboSlideImg" src="${slideData[0].img}" alt="HVAC Slide 1" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-family: monospace; font-size: 12px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
+              <button id="prevLboSlideBtn" class="slide-nav-btn slide-nav-btn-prev" style="background: none; border: none; color: rgba(255,255,255,0.2); cursor: not-allowed; font-family: monospace; font-size: 12px; transition: color 0.3s;" disabled>[ PREVIOUS SLIDE ]</button>
+              <span id="modalLboSlideCounter">Slide 1 of 10</span>
+              <button id="nextLboSlideBtn" class="slide-nav-btn slide-nav-btn-next" style="background: none; border: none; color: var(--accent); cursor: pointer; font-family: monospace; font-size: 12px; transition: color 0.3s;">[ NEXT SLIDE ]</button>
+            </div>
+          </div>
+          <h4 id="modalLboSlideTitle" style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; border-left: 2px solid var(--accent); padding-left: 10px;">${slideData[0].title}</h4>
+          <p id="modalLboSlideText" style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6; min-height: 70px; margin-bottom: 35px;">
+            ${slideData[0].text}
+          </p>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Model Excel Worksheets</h3>
           <div style="margin-bottom: 25px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000;">
             <img src="assets/lbo_screenshot_1.png" alt="LBO Model Overview — Assumptions & Financing" style="width: 100%; height: auto; display: block;" />
             <div style="padding: 12px 20px; font-family: monospace; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
@@ -2627,18 +2720,6 @@
             </div>
           </div>
           
-          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Executive Return Summary</h3>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
-            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
-              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Internal Rate of Return (IRR)</div>
-              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--accent);">29.6%</div>
-            </div>
-            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 6px; text-align: center;">
-              <div style="font-family: monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Multiple on Invested Capital (MOIC)</div>
-              <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: #ffffff;">5.99x</div>
-            </div>
-          </div>
-
           <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Return Attribution Breakdown</h3>
           <div class="data-table-container" style="margin-bottom: 30px;">
             <table class="sens-table" style="width: 100%;">
@@ -2674,45 +2755,57 @@
             </table>
           </div>
 
-          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Transaction Parameters</h3>
-          <div class="data-table-container" style="margin-bottom: 30px;">
-            <table class="sens-table" style="width: 100%;">
-              <thead>
-                <tr>
-                  <th style="text-align: left;">Metric</th>
-                  <th>Value ($000s)</th>
-                  <th>Multiple / Detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="text-align: left; color: var(--text-primary);">Enterprise Value</td>
-                  <td>$169,000</td>
-                  <td>6.5x EV/EBITDA</td>
-                </tr>
-                <tr>
-                  <td style="text-align: left; color: var(--text-primary);">Less: Net Debt</td>
-                  <td>-$31,000</td>
-                  <td>Refinanced at Entry</td>
-                </tr>
-                <tr>
-                  <td style="text-align: left; color: var(--text-primary);">Plus: Cash Balance</td>
-                  <td>$57,269</td>
-                  <td>Target Balance</td>
-                </tr>
-                <tr style="font-weight: bold; border-top: 1px solid rgba(255,255,255,0.1);">
-                  <td style="text-align: left; color: var(--text-primary);">Equity Offer Value</td>
-                  <td>$195,269</td>
-                  <td>$13.00 per share (20% Premium)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">
             <strong>Analysis:</strong> The transaction of HVAC Inc. is structured at an entry multiple of 6.5x EV/EBITDA. Value creation is primarily driven by operating growth (EBITDA growth accounts for 44% of value creation, or $167.1M), supplemented by cash accretion of $14.7M (4% of returns). The target leverage structure enables a strong cash paydown trajectory, yielding an exceptional <strong>29.6% IRR</strong> and <strong>5.99x MOIC</strong> over the forecast horizon.
           </p>
         `;
+
+        const prevBtn = document.getElementById('prevLboSlideBtn');
+        const nextBtn = document.getElementById('nextLboSlideBtn');
+        const slideImg = document.getElementById('modalLboSlideImg');
+        const slideCounter = document.getElementById('modalLboSlideCounter');
+        const slideTitle = document.getElementById('modalLboSlideTitle');
+        const slideText = document.getElementById('modalLboSlideText');
+
+        window.updateLboSlide = function(index) {
+          window.currentLboSlideIndex = index;
+          slideImg.src = slideData[index].img;
+          slideCounter.textContent = `Slide ${index + 1} of ${slideData.length}`;
+          slideTitle.textContent = slideData[index].title;
+          slideText.innerHTML = slideData[index].text;
+
+          if (index === 0) {
+            prevBtn.disabled = true;
+            prevBtn.style.color = 'rgba(255,255,255,0.2)';
+            prevBtn.style.cursor = 'not-allowed';
+          } else {
+            prevBtn.disabled = false;
+            prevBtn.style.color = 'var(--accent)';
+            prevBtn.style.cursor = 'pointer';
+          }
+
+          if (index === slideData.length - 1) {
+            nextBtn.disabled = true;
+            nextBtn.style.color = 'rgba(255,255,255,0.2)';
+            nextBtn.style.cursor = 'not-allowed';
+          } else {
+            nextBtn.disabled = false;
+            nextBtn.style.color = 'var(--accent)';
+            nextBtn.style.cursor = 'pointer';
+          }
+        };
+
+        prevBtn.onclick = () => {
+          if (window.currentLboSlideIndex > 0) {
+            window.updateLboSlide(window.currentLboSlideIndex - 1);
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (window.currentLboSlideIndex < slideData.length - 1) {
+            window.updateLboSlide(window.currentLboSlideIndex + 1);
+          }
+        };
       } else if (capName === "3-Statement Integrated Model (P&L, BS, CF)") {
         capModalBody.innerHTML = `
           <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">3-Statement Integrated Model</h2>
@@ -2835,6 +2928,265 @@
           <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6;">
             <strong>Analysis:</strong> The 3-statement model of HVAC Inc. demonstrates a healthy growth profile, with revenues compounding steadily at 3.5% per annum. Operating margins remain stable, pushing EBITDA from $41.0K to $48.7K. Strong cash generation allows the company to build cash reserves from $10.0K to $106.6K while fully deleveraging (repaying revolver debt completely and amortizing term loan debt down from $40.0K to $23.6K). The balance sheet remains fully matched and balanced across the forecast period.
           </p>
+        `;
+      } else if (capName === "Quality of Earnings (QoE) Analysis") {
+        const slideData = [
+          { img: "assets/qoe_slide_1_cropped.png", title: "Slide 1 — Cover Page", text: "<strong>Evaluating Quality of Earnings in 2026: When Thornton O'Glove Meets the AI Era</strong><br>Quality of Earnings analysis in the modern economy requires navigating asset-light tech structures, capitalized development, and generative AI narratives." },
+          { img: "assets/qoe_slide_2_cropped.png", title: "Slide 2 — A 40-Year Gap, One Unchanged Truth", text: "<strong>1987 vs. 2026:</strong> Modern analysts deal with SaaS platforms, AI cost capitalization, and cloud migrations instead of paper filings. Yet, management's incentive to present the most favorable numbers remains identical." },
+          { img: "assets/qoe_slide_3_cropped.png", title: "Slide 3 — The Timeless Principles", text: "<strong>The Foundational Pillars:</strong> 1) <em>Differential Disclosure</em> (gaps between narrative and regulatory filing details); 2) <em>Core vs. One-Offs</em> (finding the true recurring run rate); 3) <em>Expense Suppression</em> (short-term margin inflation via cost delays)." },
+          { img: "assets/qoe_slide_4_cropped.png", title: "Slide 4 — Differential Disclosure", text: "<strong>Filing Scrutiny vs. Presentation Optimism:</strong> Investor decks inspire confidence; SEC filings face legal scrutiny. The wider the gap between the narrative in investor calls and the footnotes in filings, the higher the risk." },
+          { img: "assets/qoe_slide_5_cropped.png", title: "Slide 5 — Paper Tigers & Expense Suppression", text: "<strong>Identifying Earnings Distortion:</strong> Adjusting for nonrecurring gains (asset sales, tax credits) and identifying cost delays (sudden R&D or marketing cuts) to calculate what earnings would be if these ceased tomorrow." },
+          { img: "assets/qoe_slide_6_cropped.png", title: "Slide 6 — Modern Battleground: AI Capitalization", text: "<strong>Software/AI Cost Capitalization:</strong> Capitalizing routine AI integrations instead of expensing them on the P&L. Excessive capitalization of software/AI development costs is a major red flag for deteriorating earnings quality." },
+          { img: "assets/qoe_slide_7_cropped.png", title: "Slide 7 — Differential Disclosure in the AI Age", text: "<strong>Narrative Drift Detection:</strong> Companies leverage LLMs to write smooth filings; analysts use LLMs for semantic search to detect shifts in risk language, sentiment discrepancies, and filing-to-transcript gaps." },
+          { img: "assets/qoe_slide_8_cropped.png", title: "Slide 8 — Subscription Economies & Recurring 'One-Times'", text: "<strong>Revenue Recognition & Restructuring:</strong> Scrutinizing deferred revenue booking, usage-based receivables, and recurring 'one-off' restructuring charges (e.g. legacy retirements, cloud migrations) that occur year after year." },
+          { img: "assets/qoe_slide_9_cropped.png", title: "Slide 9 — QoE Checklist for 2026", text: "<strong>Forensic Checklist:</strong> 1) Track OCF vs. Net Income divergence; 2) Audit AI development cost capitalization; 3) Normalize non-GAAP adjustments; 4) Cross-examine transcripts with filings." },
+          { img: "assets/qoe_slide_10_cropped.png", title: "Slide 10 — The Financial Detective Still Wins", text: "<strong>Conclusion:</strong> Algorithms change the speed and tools, but skepticism remains the analyst's ultimate edge. Question optimistic narratives, normalize adjustments, and verify cash flows." }
+        ];
+
+        window.currentQoeSlideIndex = 0;
+
+        capModalBody.innerHTML = `
+          <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">Quality of Earnings</h2>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Forensic Due Diligence — Thornton O'Glove & Modern AI Era</p>
+          
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">QoE Presentation Slides</h3>
+          <div class="slideshow-container" style="margin-bottom: 30px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000; position: relative;">
+            <div style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background-color: #050505; display: flex; justify-content: center; align-items: center;">
+              <img id="modalQoeSlideImg" src="${slideData[0].img}" alt="QoE Slide 1" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-family: monospace; font-size: 12px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01);">
+              <button id="prevQoeSlideBtn" class="slide-nav-btn slide-nav-btn-prev" style="background: none; border: none; color: rgba(255,255,255,0.2); cursor: not-allowed; font-family: monospace; font-size: 12px; transition: color 0.3s;" disabled>[ PREVIOUS SLIDE ]</button>
+              <span id="modalQoeSlideCounter">Slide 1 of 10</span>
+              <button id="nextQoeSlideBtn" class="slide-nav-btn slide-nav-btn-next" style="background: none; border: none; color: var(--accent); cursor: pointer; font-family: monospace; font-size: 12px; transition: color 0.3s;">[ NEXT SLIDE ]</button>
+            </div>
+          </div>
+          <h4 id="modalQoeSlideTitle" style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; border-left: 2px solid var(--accent); padding-left: 10px;">${slideData[0].title}</h4>
+          <p id="modalQoeSlideText" style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6; min-height: 70px; margin-bottom: 35px;">
+            ${slideData[0].text}
+          </p>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">QoE Earnings Normalization (FY2026)</h3>
+          <div class="data-table-container" style="margin-bottom: 30px;">
+            <table class="sens-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Earnings Item</th>
+                  <th>Reported ($M)</th>
+                  <th>Adjustments ($M)</th>
+                  <th>Normalized ($M)</th>
+                  <th>QoE Factor / Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Revenue</td>
+                  <td>$85.0</td>
+                  <td style="color: #ff5252;">-$2.1</td>
+                  <td>$82.9</td>
+                  <td>Accelerated SaaS contract recognition</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">EBITDA</td>
+                  <td>$24.5</td>
+                  <td style="color: #ff5252;">-$5.7</td>
+                  <td style="font-weight: bold; color: var(--accent);">$18.8</td>
+                  <td>Capitalized AI development costs</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Net Income</td>
+                  <td>$18.5</td>
+                  <td style="color: #ff5252;">-$7.3</td>
+                  <td style="font-weight: bold; color: #ffffff;">$11.2</td>
+                  <td>Normalized run-rate adjusted for non-core items</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; font-style: italic;">
+            *Analysis Note: CogniTech's earnings quality score is adjusted down by 39.5%. The primary driver is aggressive capitalization of routine AI API integrations and expense suppression of R&D fleet assets, which artificially inflated the reported EBITDA margin from 22.7% to 28.8%.
+          </p>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Key Risk Matrices</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 35px;">
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Differential Disclosure</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Wide discrepancies between bullish investor narratives and highly detailed regulatory filings (e.g. risks related to AI integration failure, data privacy, and usage-based contracts).</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">AI Expense Capitalization</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Treating recurring third-party LLM API subscription costs and maintenance labor as capitalized software, inflating operating margins.</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Expense Suppression</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Sudden reductions in vital operating metrics (R&D spend, developer headcount, marketing campaigns) to project higher short-term EBITDA margins before exit.</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Recurring One-Times</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Excluding critical ongoing operational expenses (like continuous cloud migrations, system rearchitecting, and restructuring) under Non-GAAP addbacks.</div>
+            </div>
+          </div>
+        `;
+
+        const prevBtn = document.getElementById('prevQoeSlideBtn');
+        const nextBtn = document.getElementById('nextQoeSlideBtn');
+        const slideImg = document.getElementById('modalQoeSlideImg');
+        const slideCounter = document.getElementById('modalQoeSlideCounter');
+        const slideTitle = document.getElementById('modalQoeSlideTitle');
+        const slideText = document.getElementById('modalQoeSlideText');
+
+        window.updateQoeSlide = function(index) {
+          window.currentQoeSlideIndex = index;
+          slideImg.src = slideData[index].img;
+          slideCounter.textContent = `Slide ${index + 1} of ${slideData.length}`;
+          slideTitle.textContent = slideData[index].title;
+          slideText.innerHTML = slideData[index].text;
+
+          if (index === 0) {
+            prevBtn.disabled = true;
+            prevBtn.style.color = 'rgba(255,255,255,0.2)';
+            prevBtn.style.cursor = 'not-allowed';
+          } else {
+            prevBtn.disabled = false;
+            prevBtn.style.color = 'var(--accent)';
+            prevBtn.style.cursor = 'pointer';
+          }
+
+          if (index === slideData.length - 1) {
+            nextBtn.disabled = true;
+            nextBtn.style.color = 'rgba(255,255,255,0.2)';
+            nextBtn.style.cursor = 'not-allowed';
+          } else {
+            nextBtn.disabled = false;
+            nextBtn.style.color = 'var(--accent)';
+            nextBtn.style.cursor = 'pointer';
+          }
+        };
+
+        prevBtn.onclick = () => {
+          if (window.currentQoeSlideIndex > 0) {
+            window.updateQoeSlide(window.currentQoeSlideIndex - 1);
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (window.currentQoeSlideIndex < slideData.length - 1) {
+            window.updateQoeSlide(window.currentQoeSlideIndex + 1);
+          }
+        };
+      } else if (capName === "Credit Memo Analysis Report (McDonald's)") {
+        capModalBody.innerHTML = `
+          <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: -0.01em;">Credit Review Analysis</h2>
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--accent); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;">Credit Risk Committee — McDonald's Corporation</p>
+          
+          <div style="margin-bottom: 25px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background-color: #000; position: relative;">
+            <div style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background-color: #050505; display: flex; justify-content: center; align-items: center;">
+              <img src="assets/mcdonalds_slide_1.png" alt="McDonald's Credit Review Slide" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
+            </div>
+            <div style="padding: 12px 20px; font-family: monospace; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.01); text-align: center;">
+              Fig 3.0: Credit Committee Presentation — USD 500M Unsecured RCF Assessment
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Financial Snapshot (FY2024A)</h3>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Revenue</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #ffffff;">$25.9B</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">EBITDA Margin</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--accent);">53.3%</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Free Cash Flow</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #ffffff;">$6.7B</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; text-align: center;">
+              <div style="font-family: monospace; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Net Leverage</div>
+              <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #ffffff;">2.70x</div>
+            </div>
+          </div>
+          
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Peer Comparison (FY2024A)</h3>
+          <div class="data-table-container" style="margin-bottom: 30px;">
+            <table class="sens-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Metric</th>
+                  <th>McDonald's</th>
+                  <th>Yum! Brands</th>
+                  <th>RBI (QSR)</th>
+                  <th>Wendy's</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Revenue (USD Bn)</td>
+                  <td style="font-weight: bold;">$25.92</td>
+                  <td>$7.55</td>
+                  <td>$7.90</td>
+                  <td>$2.20</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">EBITDA Margin</td>
+                  <td style="font-weight: bold; color: var(--accent);">53.3%</td>
+                  <td>34.2%</td>
+                  <td>31.4%</td>
+                  <td>24.7%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">Net Debt / EBITDA</td>
+                  <td style="font-weight: bold;">2.70x</td>
+                  <td>4.70x</td>
+                  <td>5.20x</td>
+                  <td>5.80x</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; color: var(--text-primary);">S&P Rating</td>
+                  <td style="font-weight: bold; color: var(--accent);">BBB+ (Stable)</td>
+                  <td>BB+</td>
+                  <td>BB</td>
+                  <td>B+</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <p style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; font-style: italic;">
+            *Analysis Note: McDonald's Corporation is the only Investment Grade (IG) rated pure-play QSR globally. The business operates a highly profitable 95% franchise model yielding a massive 1,800 to 2,500 bps EBITDA margin premium over industry peers.
+          </p>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Key Risks & Mitigants</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 35px;">
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Consumer Pressure</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Mitigated by aggressive value platforms (e.g., $5 bundles) and a massive digital loyalty program with 200M+ active global members.</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Refinancing & FX Risk</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">~96% of debt is structured as fixed-rate. Liquidity is backed by a $4B syndicated revolver. FX exposures are hedged locally via derivative overlays.</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Food Safety & Supply Chain</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">Mitigated by S&P/SQMS quality framework standards and a highly decentralized network of independent regional suppliers.</div>
+            </div>
+            <div style="background-color: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 20px; border-radius: 4px;">
+              <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Geopolitical Exposures</div>
+              <div style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); line-height: 1.5;">The franchise model limits corporate P&L exposure. International Developmental Licensed (IDL) comps grew +5.6% in Q2 2025.</div>
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 15px; border-left: 2px solid var(--accent); padding-left: 12px;">Facility Terms & Recommendation</h3>
+          <div style="background-color: rgba(200, 245, 66, 0.03); border: 1px solid rgba(200, 245, 66, 0.1); padding: 25px; border-radius: 6px; margin-bottom: 30px;">
+            <h4 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;">Recommendation: APPROVE USD 500M Unsecured RCF</h4>
+            <ul style="font-family: var(--font-body); font-size: 14px; color: var(--text-primary); padding-left: 20px; line-height: 1.7;">
+              <li><strong>Pricing structure:</strong> SOFR + 65.0 to 80.0 bps, commitment fee 15.0 to 20.0 bps.</li>
+              <li><strong>Financial Covenants:</strong> Net Leverage ratio ≤ 3.50x; EBITDA/Interest coverage ≥ 3.00x; 12-month facility clean-down.</li>
+              <li><strong>Scale & FCF Cover:</strong> Facility represents &lt;1.0% of total assets and &lt;7.5% of annual Free Cash Flow.</li>
+              <li><strong>Stress Test:</strong> High-stress downcase modeling (30% revenue reduction) shows EBITDA ~$9.7B, leaving a massive safety buffer to satisfy all debt service obligations.</li>
+              <li><strong>Add-on status:</strong> Facility acts as an incremental line to McDonald's existing $4B syndicated corporate revolver.</li>
+            </ul>
+          </div>
         `;
       } else {
         capModalBody.innerHTML = `
